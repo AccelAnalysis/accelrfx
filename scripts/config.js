@@ -2,8 +2,8 @@
 // Fill in WEBAPP_URL and SHEET_ID for your deployment.
 
 export const CONFIG = {
-  WEBAPP_URL: 'YOUR_APPS_SCRIPT_WEBAPP_URL',  // e.g., https://script.google.com/macros/s/AKfycb.../exec
-  SHEET_ID:   'YOUR_SHEET_ID_HERE',
+  WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbxSxMzA83fmV0ChL-r3NREXuCG-fV3psxxfXLbq9kj7pPXLUWpZKDnyLOlyHs6UfUU/exec',  // e.g., https://script.google.com/macros/s/AKfycb.../exec
+  SHEET_ID:   '16s2hBF2EQXqcwSH31Ft9Le-YS5BEKgJZjoyMXcn11H0',
   ENV:        'prod',
 
   // ---- Credit system (baseline) ----
