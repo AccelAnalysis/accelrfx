@@ -321,11 +321,11 @@
         <div class="banner-left">
             <span>RFx Response</span>
         </div>
-        <div class="banner-actions">
-            <button class="btn btn-outline" onclick="alert('Draft Saved')">Save Draft</button>
-            <button class="btn btn-success" onclick="alert('Response Submitted')">Submit Response</button>
-            <button class="btn btn-outline" onclick="alert('Exited')">Exit</button>
-        </div>
+      <div class="banner-actions">
+  <button class="btn btn-outline" id="btnRespSave">Save Draft</button>
+  <button class="btn btn-success" id="btnRespSubmit">Submit Response</button>
+  <button class="btn btn-outline" id="btnRespExit">Exit</button>
+</div>
     </div>
 
     <!-- Main Container -->
@@ -785,6 +785,234 @@ function globalWeightPct() {
   ];
   return parts.reduce((a,b)=>a+b,0);
 }
+</script>
+    <script type="module">
+import cfg from './config.js';
+const CONFIG = (window.CONFIG || cfg);
+
+async function api(route, method='GET', body=null, qs={}) {
+  const u = new URL(CONFIG.WEBAPP_URL);
+  u.searchParams.set('route', route);
+  Object.entries(qs).forEach(([k,v]) => u.searchParams.set(k, v));
+  const res = await fetch(u.toString(), {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : null,
+    mode: 'cors'
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+const qs = new URLSearchParams(location.search);
+const v  = sel => document.querySelector(sel);
+
+/* --- basic helpers --- */
+function setByLabel(sectionEl, labelText, value) {
+  const groups = sectionEl?.querySelectorAll('.form-group') ?? [];
+  for (const g of groups) {
+    const lbl = g.querySelector('label')?.textContent?.trim().toLowerCase() || '';
+    if (lbl.includes(labelText.toLowerCase())) {
+      const el = g.querySelector('input, textarea, select');
+      if (el) el.value = value ?? '';
+      break;
+    }
+  }
+}
+
+function tbody(id) { return document.querySelector(`#${id} tbody`); }
+function addRow(tbodyEl, html) { const tr = document.createElement('tr'); tr.innerHTML = html; tbodyEl.appendChild(tr); }
+
+/* --- mirror RFx into responder UI --- */
+function renderRfx(rfx) {
+  // Section 1 in your file is "RFx Information"
+  const infoSec = document.querySelectorAll('.main-container .section')[0];
+
+  setByLabel(infoSec, 'Business Process Code', rfx.bpCode || '');
+  setByLabel(infoSec, 'RFx Title',            rfx.label || '');
+  setByLabel(infoSec, 'Lot',                  rfx.lot || '');
+  setByLabel(infoSec, 'Round',                rfx.round || '');
+  setByLabel(infoSec, 'Issued Date',          rfx.issuedDate || '');
+  setByLabel(infoSec, 'Close Date',           rfx.closeDate || '');
+  setByLabel(infoSec, 'Opportunity Type',     rfx.oppType || 'Request for Information (RFI)');
+  setByLabel(infoSec, 'Summary',              rfx.summary || '');
+
+  // Criteria (mirror each criterion, responder fills "Your Response")
+  const critTB = tbody('criteriaTable');
+  critTB.innerHTML = '';
+  (rfx.sections?.criteria || []).forEach((c, i) => {
+    addRow(critTB, `
+      <td>${i+1}</td>
+      <td><input type="text" value="${(c.criterion||'').replaceAll('"','&quot;')}" readonly></td>
+      <td><textarea rows="2" readonly>${(c.description||'')}</textarea></td>
+      <td><select disabled><option>${c.method||'Qualitative Narrative'}</option></select></td>
+      <td><input type="file"></td>
+      <td><textarea rows="4" placeholder="Enter your detailed response..."></textarea></td>
+      <td><button class="action-btn" onclick="this.closest('tr').remove(); if(window.renumberCriteria) renumberCriteria()">Remove</button></td>
+    `);
+  });
+  if (window.renumberCriteria) renumberCriteria();
+
+  // Skills (mirror)
+  const sklTB = tbody('skillsTable'); sklTB.innerHTML = '';
+  (rfx.sections?.skills || []).forEach(s => {
+    addRow(sklTB, `
+      <td><input type="text" value="${(s.label||'').replaceAll('"','&quot;')}" readonly></td>
+      <td><select disabled><option>${s.level||''}</option></select></td>
+      <td><textarea rows="2" placeholder="Describe your proficiency / evidence"></textarea></td>
+      <td><button class="action-btn" onclick="this.closest('tr').remove()">Remove</button></td>
+    `);
+  });
+
+  // Experience (mirror)
+  const expTB = tbody('experienceTable'); expTB.innerHTML = '';
+  (rfx.sections?.experience || []).forEach(x => {
+    addRow(expTB, `
+      <td><input type="text" value="${(x.name||'').replaceAll('"','&quot;')}" readonly></td>
+      <td><textarea rows="2" readonly>${x.description||''}</textarea></td>
+      <td><input type="text" placeholder="Duration or dates"></td>
+      <td><button class="action-btn" onclick="this.closest('tr').remove()">Remove</button></td>
+    `);
+  });
+
+  // Certifications (mirror)
+  const certTB = tbody('certTable'); certTB.innerHTML = '';
+  (rfx.sections?.certifications || []).forEach(c => {
+    addRow(certTB, `
+      <td><input type="text" value="${(c.name||'').replaceAll('"','&quot;')}" readonly></td>
+      <td><input type="text" value="${(c.body||'').replaceAll('"','&quot;')}" readonly></td>
+      <td><input type="date"></td>
+      <td><button class="action-btn" onclick="this.closest('tr').remove()">Remove</button></td>
+    `);
+  });
+
+  // References (mirror)
+  const refTB = tbody('refTable'); refTB.innerHTML = '';
+  (rfx.sections?.references || []).forEach(r => {
+    addRow(refTB, `
+      <td><select disabled><option>${r.type||'Client'}</option></select></td>
+      <td><input type="text" placeholder="Name"></td>
+      <td><input type="text" placeholder="Project"></td>
+      <td><input type="text" placeholder="Contact (email/phone)"></td>
+      <td><textarea rows="2" placeholder="Short testimonial (optional)"></textarea></td>
+      <td><button class="action-btn" onclick="this.closest('tr').remove()">Remove</button></td>
+    `);
+  });
+
+  // Cost section only for RFP
+  const costSec = document.getElementById('costSection');
+  if (costSec) costSec.style.display = rfx.oppType?.includes('Proposal') ? 'block' : 'none';
+}
+
+/* --- serialize response --- */
+function serializeResponse() {
+  // RFx linkage: read from the "RFx Information" section (first section)
+  const infoSec = document.querySelectorAll('.main-container .section')[0];
+  const readValue = label => {
+    const groups = infoSec?.querySelectorAll('.form-group') ?? [];
+    for (const g of groups) {
+      const lbl = g.querySelector('label')?.textContent?.trim().toLowerCase() || '';
+      if (lbl.includes(label.toLowerCase())) {
+        return g.querySelector('input, textarea, select')?.value || '';
+      }
+    }
+    return '';
+  };
+  const bpCode = readValue('Business Process Code');
+
+  // Responder section (second section in your file)
+  const respSec = document.querySelectorAll('.main-container .section')[1];
+  const inputs = respSec?.querySelectorAll('input, textarea') ?? [];
+  const [company, contact, email, phone, address] = [0,1,2,3,4].map(i => inputs[i]?.value || '');
+
+  const tb = id => document.querySelector(`#${id} tbody`);
+  const mapRows = (tbEl, f) => tbEl ? [...tbEl.querySelectorAll('tr')].map(f) : [];
+
+  const docs = mapRows(tb('docsTable'), tr => ({
+    title: tr.cells[0]?.querySelector('input')?.value || '',
+    note:  tr.cells[1]?.querySelector('textarea')?.value || '',
+    // if you implement uploads elsewhere, store the link here
+  }));
+  const skills = mapRows(tb('skillsTable'), tr => ({
+    skill: tr.cells[0]?.querySelector('input')?.value || '',
+    proficiency: tr.cells[1]?.querySelector('select')?.value || '',
+    evidence: tr.cells[2]?.querySelector('textarea')?.value || ''
+  }));
+  const experience = mapRows(tb('experienceTable'), tr => ({
+    project: tr.cells[0]?.querySelector('input')?.value || '',
+    description: tr.cells[1]?.querySelector('textarea')?.value || '',
+    duration: tr.cells[2]?.querySelector('input')?.value || ''
+  }));
+  const certs = mapRows(tb('certTable'), tr => ({
+    name: tr.cells[0]?.querySelector('input')?.value || '',
+    body: tr.cells[1]?.querySelector('input')?.value || '',
+    expiration: tr.cells[2]?.querySelector('input[type=date]')?.value || ''
+  }));
+  const refs = mapRows(tb('refTable'), tr => ({
+    type: tr.cells[0]?.querySelector('select')?.value || '',
+    name: tr.cells[1]?.querySelector('input')?.value || '',
+    project: tr.cells[2]?.querySelector('input')?.value || '',
+    contact: tr.cells[3]?.querySelector('input')?.value || '',
+    testimonial: tr.cells[4]?.querySelector('textarea')?.value || ''
+  }));
+  const criteriaResponses = mapRows(tb('criteriaTable'), tr => ({
+    number: tr.cells[0]?.textContent?.trim() || '',
+    criterion: tr.cells[1]?.querySelector('input')?.value || '',
+    response:  tr.cells[5]?.querySelector('textarea')?.value || ''
+  }));
+  const costs = (() => {
+    const sec = document.getElementById('costSection');
+    if (!sec || sec.style.display === 'none') return [];
+    return mapRows(tb('costTable'), tr => ({
+      item: tr.cells[0]?.querySelector('input')?.value || '',
+      amount: parseFloat(tr.cells[1]?.querySelector('input')?.value || '0') || 0,
+      breakdown: tr.cells[2]?.querySelector('textarea')?.value || ''
+    }));
+  })();
+  const totalCost = costs.reduce((a,c)=>a+(Number(c.amount)||0),0);
+
+  return {
+    bpCode,
+    responder: { company, contact, email, phone, address },
+    docs, skills, experience, certs, refs, criteriaResponses, costs, totalCost,
+    meta: { actionCost: (CONFIG.CREDITS?.ACTION_COSTS?.RESPOND_RFx ?? 2) },
+    submittedAt: new Date().toISOString()
+  };
+}
+
+/* --- return url helper --- */
+function backToApp(extraQS='') {
+  const qsReturn = qs.get('return');
+  const fixed    = CONFIG.RETURN_URL;
+  const ref      = document.referrer && !document.referrer.includes('about:') ? document.referrer : '';
+  const base = qsReturn || fixed || ref || '/';
+  const sep = base.includes('?') ? '&' : '?';
+  location.href = extraQS ? (base + sep + extraQS) : base;
+}
+
+/* --- load & bind --- */
+async function init() {
+  const bp = qs.get('bp');
+  if (bp) {
+    const rfx = await api('getRfx', 'GET', null, { bpCode: bp });
+    renderRfx(rfx);
+  }
+}
+document.getElementById('btnRespExit')?.addEventListener('click', () => backToApp());
+document.getElementById('btnRespSave')?.addEventListener('click', async () => {
+  const payload = serializeResponse();
+  if (!payload.bpCode) return alert('Missing Business Process Code.');
+  await api('saveResponseDraft', 'POST', payload);
+  alert('Draft saved.');
+});
+document.getElementById('btnRespSubmit')?.addEventListener('click', async () => {
+  const p = serializeResponse();
+  if (!p.bpCode) return alert('Missing Business Process Code.');
+  if (!p.responder.company || !p.responder.contact || !p.responder.email || !p.responder.phone)
+    return alert('Company, Contact, Email, and Phone are required.');
+  await api('submitResponse', 'POST', p);
+  backToApp(`bp=${encodeURIComponent(p.bpCode)}&state=response_submitted`);
+});
+init();
 </script>
 </body>
 </html>
