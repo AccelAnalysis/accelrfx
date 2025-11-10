@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AccelRFx | Unified RFP Map</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2F5597" />
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="styles/theme.css" />
+  <link rel="stylesheet" href="styles/styles.css" />
+  <link rel="stylesheet" href="styles/responsive.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="hero-bar">
+    <div class="hero-left">
+      <button id="drawerToggle" class="icon-btn" aria-label="Open Menu">
+        <img src="assets/ui/drawer_icon.svg" alt="Menu" height="26" />
+      </button>
+      <img src="assets/accel_logo.png" alt="AccelRFx Logo" class="logo" />
+      <h1>AccelRFx</h1>
+    </div>
+    <div class="hero-right">
+      <span id="creditBalance" class="chip">Credits: 100</span>
+      <button id="notificationsBtn" class="icon-btn" aria-label="Notifications">
+        <img src="assets/icons/bell.svg" alt="Notifications" class="icon" />
+      </button>
+      <button id="profileBtn" class="icon-btn" aria-label="Profile">
+        <img src="assets/icons/user.svg" alt="Profile" class="icon" />
+      </button>
+    </div>
+  </header>
+
+  <aside id="drawerMenu" aria-label="Side Navigation">
+    <nav>
+      <ul>
+        <li data-nav="dashboard"><img src="assets/icons/dashboard.svg" class="nav-icon" alt=""/> Dashboard</li>
+        <li data-nav="create"><img src="assets/icons/rfpx.svg" class="nav-icon" alt=""/> Create RFPx</li>
+        <li data-nav="responses"><img src="assets/icons/responses.svg" class="nav-icon" alt=""/> Responses</li>
+        <li data-nav="analytics"><img src="assets/icons/analytics.svg" class="nav-icon" alt=""/> Analytics</li>
+        <li data-nav="settings"><img src="assets/icons/settings.svg" class="nav-icon" alt=""/> Settings</li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main id="mapContainer" role="main">
+    <div id="map"></div>
+    <div id="floatingSearch" role="search" aria-label="Search">
+      <img src="assets/icons/search.svg" alt="" class="icon muted" aria-hidden="true"/>
+      <input type="text" id="searchInput" placeholder="Search RFPs, Companies, or Locations..." />
+      <button id="searchBtn" class="primary-btn">Search</button>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 AccelRFx v1.0.0</p>
+    <a href="https://accelrfx.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+    <a href="https://accelrfx.com/terms" target="_blank" rel="noopener">Terms of Service</a>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+  <script type="module" src="scripts/app.js"></script>
+</body>
+</html>

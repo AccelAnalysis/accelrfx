@@ -1,0 +1,21 @@
+{
+  "name": "AccelRFx",
+  "short_name": "AccelRFx",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#F8FAFD",
+  "theme_color": "#2F5597",
+  "description": "Unified map-based RFP platform integrating buyers and suppliers.",
+  "icons": [
+    {
+      "src": "assets/accel_logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

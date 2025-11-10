@@ -1,0 +1,66 @@
+
+/* Overlay */
+#targetOverlay{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.25);
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s ease;
+  z-index: 1190;
+}
+#targetOverlay.open{ opacity: 1; pointer-events: auto; }
+
+/* Bottom Sheet — glass + bounce with translateY */
+#targetSheet{
+  position: fixed; left: 0; right: 0; bottom: 0;
+  transform: translateY(100%);
+  max-height: 78vh;
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border-top: 1px solid rgba(255,255,255,0.65);
+  box-shadow: 0 -10px 28px rgba(0,0,0,.12);
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  z-index: 1200;
+  transition: transform .44s cubic-bezier(.2,.8,.2,1);
+}
+#targetSheet.open{
+  transform: translateY(0);
+  animation: sheet-bounce .45s ease-out;
+}
+@keyframes sheet-bounce{
+  0%{ transform: translateY(12px); }
+  60%{ transform: translateY(-4px); }
+  100%{ transform: translateY(0); }
+}
+#targetSheet .sheet-head{
+  display:flex; align-items:center; gap:12px; padding:12px 14px;
+  border-bottom:1px solid rgba(0,0,0,.06);
+}
+.drag-handle{
+  width: 40px; height: 5px; border-radius:999px; background: rgba(0,0,0,.18);
+  margin-right: 6px;
+}
+#targetSheet h3{ margin:0; color:#1f2d4d; }
+#targetSheet .sheet-body{
+  overflow:auto; padding: 12px 14px;
+}
+.tm-grid{
+  display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px;
+}
+.tm-card{
+  background:#fff; border:1px solid #e6ebf5; border-radius:12px; padding:12px;
+}
+.tm-fields.two{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px; }
+.counts{ display:flex; flex-direction:column; gap:6px; }
+.counts .row{ display:flex; justify-content:space-between; font-weight:600; }
+.tiny{ font-size:.85rem; }
+.ghost{ background: transparent; border: 1px solid rgba(0,0,0,.08); }
+@media (max-width: 980px){
+  .tm-grid{ grid-template-columns: 1fr; }
+}
+
+/* Explicit circle visuals to ensure visibility */
+.leaflet-interactive.ring-path{
+  fill-opacity: .22; stroke-width: 2.2px;
+}

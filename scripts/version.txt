@@ -1,0 +1,2 @@
+AccelRFx v1.0.0 - November 2025
+Build Type: Production Release

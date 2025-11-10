@@ -1,0 +1,153 @@
+
+/* =========================================================
+   AccelRFx Responsive Overrides
+   - Complements styles.css + theme.css
+   - Do not duplicate base rules; only override/adjust here
+   ========================================================= */
+
+/* ---------- Desktop-ish refinement (≤1280px) ---------- */
+@media (max-width: 1280px) {
+  #floatingSearch input {
+    width: 230px;
+  }
+}
+
+/* ---------- Laptop / Tablet Landscape (≤1024px) ---------- */
+@media (max-width: 1024px) {
+  #drawerMenu { width: 220px; }
+
+  #floatingSearch input {
+    width: 200px;
+  }
+
+  .hero-bar .hero-left h1 {
+    font-size: 1.1rem;
+  }
+}
+
+/* ---------- Tablet Portrait (≤900px) ---------- */
+@media (max-width: 900px) {
+  /* Make form sections single-column */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Slightly smaller header/footer for more map space */
+  :root {
+    --header-h: 64px;
+    --footer-h: 48px;
+  }
+
+  /* Float search a touch narrower */
+  #floatingSearch input { width: 190px; }
+}
+
+/* ---------- Mobile (≤768px) ---------- */
+@media (max-width: 768px) {
+  /* Compact branding in hero bar */
+  .hero-bar .logo { height: 36px; }
+  .hero-bar .hero-left h1 {
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  /* Drawer overlays fully on mobile */
+  #drawerMenu {
+    width: 86%;
+    max-width: 320px;
+  }
+
+  /* Floating search becomes edge-to-edge (leaving margin for the drawer toggle left and safe area) */
+  #floatingSearch {
+    left: 12px;
+    right: 12px;
+    transform: none;
+  }
+  #floatingSearch input {
+    width: 100%;
+  }
+
+  /* Leaflet controls move to bottom-right so they don't collide with the floating search */
+  .leaflet-top.leaflet-right {
+    top: auto;
+    bottom: calc(var(--footer-h) + 24px);
+    right: 12px;
+  }
+
+  /* Touch targets a bit larger */
+  .primary-btn, .secondary-btn, .icon-btn {
+    padding: 10px 12px;
+    border-radius: 10px;
+  }
+
+  footer {
+    font-size: 0.85rem;
+    gap: 12px;
+  }
+}
+
+/* ---------- Small Mobile (≤480px) ---------- */
+@media (max-width: 480px) {
+  /* More compact header/footer */
+  :root {
+    --header-h: 60px;
+    --footer-h: 52px;
+  }
+
+  .hero-bar .logo { height: 30px; }
+  .hero-bar .hero-left h1 { display: none; } /* icon + logo only */
+
+  /* Floating search becomes a single-row pill, full width */
+  #floatingSearch {
+    top: 12px;
+    left: 10px;
+    right: 10px;
+    padding: 6px 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  #floatingSearch input {
+    padding: 8px 10px;
+    font-size: 0.95rem;
+  }
+  #floatingSearch button {
+    padding: 8px 10px;
+  }
+
+  /* Keep map controls above footer/safe area */
+  .leaflet-top.leaflet-right {
+    bottom: calc( max(var(--footer-h), env(safe-area-inset-bottom)) + 16px );
+  }
+
+  footer {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+  }
+}
+
+/* ---------- Very Small (≤360px) ---------- */
+@media (max-width: 360px) {
+  #floatingSearch { padding: 6px; }
+  #floatingSearch input { font-size: 0.9rem; }
+  #floatingSearch button { font-size: 0.9rem; }
+}
+
+/* ---------- Accessibility & Motion Preferences ---------- */
+@media (prefers-reduced-motion: reduce) {
+  #drawerMenu { transition: none !important; }
+  #floatingSearch { transition: none !important; }
+}
+
+/* ---------- Print (minimal) ---------- */
+@media print {
+  header.hero-bar,
+  #drawerMenu,
+  #floatingSearch,
+  footer {
+    display: none !important;
+  }
+  #mapContainer {
+    position: static !important;
+    height: auto !important;
+  }
+}

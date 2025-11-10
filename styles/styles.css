@@ -1,0 +1,211 @@
+
+/* =============================================================
+   AccelRFx — Stable + Glassmorphism Core Styles
+   - Self-contained variables (no external dependency order)
+   - Persistent header/footer, drawer offsets, map sizing
+   - Glass theme for drawer, search, popups, and map controls
+   ============================================================= */
+
+/* ---- Variables ---- */
+:root{
+  --primary-color: #2F5597;
+  --accent-color:  #FFD965;
+  --light-gray:    #DCE6F5;
+  --background:    #F8FAFD;
+  --text-dark:     #333333;
+  --header-h:      70px;
+  --footer-h:      50px;
+}
+
+/* ---- Base / Reset ---- */
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  color: var(--text-dark);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Buttons ---- */
+.primary-btn, .secondary-btn, .icon-btn{
+  cursor:pointer;
+  font-weight:600;
+  border:none;
+  border-radius:12px;
+}
+.primary-btn{ background: var(--primary-color); color:#fff; padding:.6rem 1.1rem; }
+.secondary-btn{ background: var(--accent-color); color: var(--primary-color); padding:.5rem .9rem; }
+.icon-btn{ background: rgba(255,255,255,.08); border:1px solid rgba(0,0,0,.08); padding:.5rem .6rem; }
+
+/* ---- Hero Bar (Persistent) ---- */
+.hero-bar{
+  position:fixed; top:0; left:0; right:0;
+  height: var(--header-h);
+  background: var(--primary-color);
+  color:#fff;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 16px;
+  z-index:1000;
+  box-shadow:0 2px 6px rgba(0,0,0,.15);
+}
+.hero-left{ display:flex; align-items:center; gap:10px; }
+.logo{ height:42px; }
+.chip{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 10px; border-radius:999px;
+  background: rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.22);
+  color:#fff; font-weight:500;
+}
+
+/* ---- Drawer (Glass + within header/footer) ---- */
+#drawerMenu{
+  position:fixed;
+  top: var(--header-h);
+  bottom: var(--footer-h);
+  left:-260px;
+  width:260px;
+  /* Glass background */
+  background: rgba(255,255,255,0.70);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border-right:1px solid rgba(255,255,255,0.65);
+  box-shadow:10px 0 24px rgba(0,0,0,.06);
+  transition:left .25s ease;
+  z-index:900;
+  overflow-y:auto;
+}
+#drawerMenu.open{ left:0; }
+#drawerMenu nav ul{ list-style:none; margin:0; padding:0; }
+#drawerMenu nav li{
+  display:flex; align-items:center; gap:10px;
+  padding:14px 16px;
+  color: var(--primary-color);
+  font-weight:600;
+  border-bottom:1px solid rgba(0,0,0,0.06);
+  cursor:pointer;
+  transition: background .2s ease, transform .1s ease;
+}
+#drawerMenu nav li:hover{ background: rgba(44,83,158,0.07); transform: translateX(1px); }
+.nav-icon{ width:18px; height:18px; flex:0 0 18px; display:block; }
+
+/* ---- Map Layout ---- */
+#mapContainer{
+  position:fixed; left:0; right:0;
+  top: var(--header-h);
+  bottom: var(--footer-h);
+  background: var(--background);
+}
+#map{ width:100%; height:100%; min-height:320px; }
+.leaflet-container{ z-index:0 !important; }
+
+/* ---- Floating Search (Glass) ---- */
+#floatingSearch{
+  position:absolute; top:18px; left:50%; transform:translateX(-50%);
+  display:flex; align-items:center; gap:8px;
+  background: rgba(255,255,255,0.35);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  border:1px solid rgba(255,255,255,0.45);
+  border-radius:12px;
+  padding:10px 12px;
+  z-index:950;
+}
+#floatingSearch .icon{ width:20px; height:20px; opacity:.75; display:block; }
+#floatingSearch input{
+  background:transparent; border:none; outline:none;
+  width:280px; font-size:.98rem; color:#0c2340;
+}
+#floatingSearch input::placeholder{ color: rgba(0,0,0,.55); }
+
+/* ---- Footer (Persistent) ---- */
+footer{
+  position:fixed; left:0; right:0; bottom:0;
+  height: var(--footer-h);
+  background:#f1f4f8;
+  color:#555;
+  display:flex; align-items:center; justify-content:center; gap:16px;
+  border-top:1px solid var(--light-gray);
+  z-index:1000;
+}
+footer a{ color: var(--primary-color); text-decoration:none; }
+footer a:hover{ text-decoration:underline; }
+
+/* ---- Leaflet Popups (Glass) ---- */
+.leaflet-popup-content-wrapper{
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border:1px solid rgba(255,255,255,0.65);
+  border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.12);
+}
+.leaflet-popup-tip{
+  background: rgba(255,255,255,0.72);
+  border:1px solid rgba(255,255,255,0.65);
+}
+.popup-content h3{ margin:0 0 6px 0; color:#1f2d4d; }
+.popup-actions{ margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; }
+.popup-btn{
+  display:inline-flex; align-items:center; gap:8px;
+  background:#fff;
+  border:1px solid #e6ebf5;
+  border-radius:10px;
+  padding:6px 10px;
+  font-weight:600;
+  color: var(--primary-color);
+  transition: box-shadow .15s ease, transform .12s ease, background .2s ease;
+}
+.popup-btn img.icon{ width:18px; height:18px; display:block; }
+.popup-btn:hover{ box-shadow:0 2px 8px rgba(0,0,0,.08); transform:translateY(-1px); }
+.popup-btn:active{ transform:translateY(0); }
+
+/* ---- Map Controls (Glass for custom + zoom) ---- */
+/* Our custom control buttons use .secondary-btn */
+.leaflet-top.leaflet-right .secondary-btn{
+  background: rgba(255,255,255,0.35);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  border:1px solid rgba(0,0,0,0.08);
+  color:#0c2340;
+  margin:6px 0 0 0;
+  border-radius:12px;
+}
+/* Default Leaflet zoom controls */
+.leaflet-control-zoom a{
+  background: rgba(255,255,255,0.35) !important;
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  border:1px solid rgba(0,0,0,0.08) !important;
+  color:#0c2340 !important;
+  transition: transform .12s ease, box-shadow .15s ease;
+}
+.leaflet-control-zoom a:hover{ transform: translateY(-1px); }
+.leaflet-control-zoom{ border:none !important; box-shadow:none !important; }
+
+/* ---- Forms / Grid ---- */
+.form-section{ background:#fff; border:1px solid var(--light-gray); border-radius:12px; padding:16px; }
+.form-grid{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:14px; }
+.form-grid label{ display:flex; flex-direction:column; gap:6px; font-weight:600; color:#1f2d4d; }
+.form-grid input, .form-grid select, textarea{
+  border:1px solid #e1e7f0; border-radius:10px; padding:10px;
+  font-size:0.96rem; background:#fff; color:#172033;
+}
+
+/* ---- Utility ---- */
+.icon{ width:20px; height:20px; display:block; }
+.muted{ opacity:.75; }
+
+/* ---- Safety: ensure layout remains even if something else fails ---- */
+@supports not (backdrop-filter: blur(1px)){
+  #drawerMenu{ background:#ffffff; }
+  #floatingSearch{ background:#ffffff; }
+  .leaflet-popup-content-wrapper{ background:#ffffff; }
+  .leaflet-control-zoom a{ background:#ffffff !important; }
+  .leaflet-top.leaflet-right .secondary-btn{ background:#ffffff; }
+}
+

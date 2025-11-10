@@ -1,0 +1,19 @@
+:root {
+  --primary-color: #2F5597;
+  --accent-color: #FFD965;
+  --light-gray: #DCE6F5;
+  --background: #F8FAFD;
+  --text-dark: #333;
+}
+.primary-btn {
+  background-color: var(--primary-color);
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+}
+.secondary-btn {
+  background-color: var(--accent-color);
+  color: var(--primary-color);
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+}

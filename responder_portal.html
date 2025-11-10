@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFx Response Form | Accel Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1E3A8A;      /* Deep Navy Blue */
+            --secondary: #0F9D58;    /* Accel Green */
+            --accent: #34C759;       /* Bright Green */
+            --light: #F8FAFC;        /* Light Background */
+            --dark: #1A202C;         /* Dark Text */
+            --gray: #A0AEC0;         /* Medium Gray */
+            --border: #E2E8F0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header & Hero */
+        .hero-header {
+            background: linear-gradient(rgba(30, 58, 138, 0.9), rgba(30, 58, 138, 0.95)), url('https://img1.wsimg.com/isteam/ip/0815fdc9-aafc-4fe1-99f8-dedc9ba0e23b/blob-02576cc.png/:/rs=w:1440,h:1440');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 120px 20px 60px;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+        }
+
+        .logo {
+            height: 60px;
+            filter: brightness(0) invert(1);
+        }
+
+        .hero-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            font-weight: 500;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Persistent Banner */
+        .persistent-banner {
+            background-color: white;
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .banner-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .banner-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0d8548;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #2ab34a;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Section Styling */
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+        }
+
+        .section h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E6F0FF;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section h2 .add-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .section h2 .add-btn:hover {
+            background-color: #0d8548;
+        }
+
+        /* Form Styling */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: 12px 14px;
+            border: 1.5px solid #CBD5E0;
+            border-radius: 8px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(15, 157, 88, 0.15);
+        }
+
+        .form-group input[readonly],
+        .form-group textarea[readonly],
+        .form-group select[disabled] {
+            background-color: #F7FAFC;
+            color: #4A5568;
+            cursor: not-allowed;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: #EBF4FF;
+            color: var(--primary);
+            font-weight: 600;
+            text-align: left;
+            padding: 14px 12px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #E2E8F0;
+            vertical-align: top;
+        }
+
+        tr:hover td {
+            background-color: #F8FAFC;
+        }
+
+        td input, td textarea, td select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1.5px solid #CBD5E0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        td textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #E53E3E;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: #FFF5F5;
+            color: #C53030;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            .persistent-banner {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+            .banner-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero Header -->
+    <header class="hero-header">
+        <div class="logo-container">
+            <img src="https://img1.wsimg.com/isteam/ip/0815fdc9-aafc-4fe1-99f8-dedc9ba0e23b/blob-f3ca1db.png/:/rs=w:331,h:400,cg:true,m/cr=w:331,h:400/qt=q:95" alt="Accel Analysis Logo" class="logo">
+        </div>
+        <h1 class="hero-title">RFx Response Portal</h1>
+        <p class="hero-subtitle">Submit your comprehensive response to the Request for Information/Proposal</p>
+    </header>
+
+    <!-- Persistent Banner -->
+    <div class="persistent-banner">
+        <div class="banner-left">
+            <span>RFx Response</span>
+        </div>
+        <div class="banner-actions">
+            <button class="btn btn-outline" onclick="alert('Draft Saved')">Save Draft</button>
+            <button class="btn btn-success" onclick="alert('Response Submitted')">Submit Response</button>
+            <button class="btn btn-outline" onclick="alert('Exited')">Exit</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+
+        <!-- RFx General Info (Read-only) -->
+        <div class="section">
+            <h2>RFx Information</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Business Process Code</label>
+                    <input type="text" readonly value="BPN077878">
+                </div>
+                <div class="form-group">
+                    <label>RFx Title</label>
+                    <input type="text" readonly value="Hampton Roads Regional Housing Market Assessment">
+                </div>
+                <div class="form-group">
+                    <label>Lot #</label>
+                    <input type="text" readonly value="1">
+                </div>
+                <div class="form-group">
+                    <label>Round</label>
+                    <input type="text" readonly value="0">
+                </div>
+                <div class="form-group">
+                    <label>Issued Date/Time (UTC-5)</label>
+                    <input type="datetime-local" readonly value="2025-11-03T09:39">
+                </div>
+                <div class="form-group">
+                    <label>Close Date/Time (UTC-5)</label>
+                    <input type="datetime-local" readonly value="2025-11-25T17:00">
+                </div>
+                <div class="form-group">
+                    <label>Opportunity Type</label>
+                    <select disabled>
+                        <option>Request for Information (RFI)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Set Aside</label>
+                    <input type="text" readonly value="">
+                </div>
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label>Summary</label>
+                <textarea readonly rows="4">The Hampton Roads Planning District Commission (HRPDC) is seeking information for a regional housing market assessment in the Hampton Roads region...</textarea>
+            </div>
+        </div>
+
+        <!-- Responder Information -->
+        <div class="section">
+            <h2>Responder Information</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Company Name *</label>
+                    <input type="text" placeholder="Enter your company name" required>
+                </div>
+                <div class="form-group">
+                    <label>Contact Person *</label>
+                    <input type="text" placeholder="Full name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" placeholder="business@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone *</label>
+                    <input type="tel" placeholder="(555) 123-4567" required>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Address</label>
+                    <textarea rows="3" placeholder="Street, City, State, ZIP"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supporting Documents -->
+        <div class="section">
+            <h2>Supporting Documents</h2>
+            <button class="add-btn" onclick="addDocRow()">+ Add Document</button>
+            <table id="docsTable">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>File</th>
+                        <th>Uploaded By</th>
+                        <th>Upload Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <p id="docCount" style="margin-top: 12px; color: var(--gray);">0 documents</p>
+        </div>
+
+        <!-- Skills -->
+        <div class="section">
+            <h2>Your Skills</h2>
+            <button class="add-btn" onclick="addSkillRow()">+ Add Skill</button>
+            <table id="skillsTable">
+                <thead>
+                    <tr><th>Skill</th><th>Proficiency</th><th>Description/Evidence</th><th>Actions</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <p id="skillCount" style="margin-top: 12px; color: var(--gray);">0 skills</p>
+        </div>
+
+        <!-- Experience -->
+        <div class="section">
+            <h2>Your Experience</h2>
+            <button class="add-btn" onclick="addExperienceRow()">+ Add Experience</button>
+            <table id="experienceTable">
+                <thead>
+                    <tr><th>Project Name</th><th>Description</th><th>Years/Duration</th><th>Actions</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <p id="expCount" style="margin-top: 12px; color: var(--gray);">0 entries</p>
+        </div>
+
+        <!-- Certifications -->
+        <div class="section">
+            <h2>Your Certifications</h2>
+            <button class="add-btn" onclick="addCertRow()">+ Add Certification</button>
+            <table id="certTable">
+                <thead>
+                    <tr><th>Name</th><th>Issuing Body</th><th>Expiration</th><th>Proof</th><th>Actions</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <p id="certCount" style="margin-top: 12px; color: var(--gray);">0 certifications</p>
+        </div>
+
+        <!-- References -->
+        <div class="section">
+            <h2>Your References</h2>
+            <button class="add-btn" onclick="addRefRow()">+ Add Reference</button>
+            <table id="refTable">
+                <thead>
+                    <tr><th>Type</th><th>Name</th><th>Project</th><th>Contact</th><th>Testimonial</th><th>Actions</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <p id="refCount" style="margin-top: 12px; color: var(--gray);">0 references</p>
+        </div>
+
+        <!-- Custom Criteria Response -->
+        <div class="section">
+            <h2>Response to Custom Criteria</h2>
+            <button class="add-btn" onclick="addCriterionRow()">+ Add Response</button>
+            <table id="criteriaTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Criterion</th>
+                        <th>Description</th>
+                        <th>Method</th>
+                        <th>Attachment</th>
+                        <th>Your Response</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Cost Section (Hidden for RFI) -->
+        <div class="section" id="costSection" style="display: none;">
+            <h2>Your Cost Proposal</h2>
+            <button class="add-btn" onclick="addCostRow()">+ Add Line Item</button>
+            <table id="costTable">
+                <thead>
+                    <tr><th>Item</th><th>Amount</th><th>Breakdown</th><th>Actions</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <p id="costCount" style="margin-top: 12px; color: var(--gray);">0 items</p>
+        </div>
+
+    </div>
+
+    <script>
+        // Load current RFx data (simulated)
+        window.onload = function() {
+            document.getElementById('issuedDate').value = '2025-11-03T09:39';
+            document.getElementById('closeDate').value = '2025-11-25T17:00';
+            toggleCostSection();
+        };
+
+        function toggleCostSection() {
+            const oppType = document.querySelector('[value="Request for Information (RFI)"]').selected;
+            document.getElementById('costSection').style.display = oppType ? 'none' : 'block';
+        }
+
+        // Document Upload
+        let docCounter = 0;
+        function addDocRow() {
+            const tbody = document.querySelector('#docsTable tbody');
+            const row = tbody.insertRow();
+            const now = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+
+            row.innerHTML = `
+                <td><input type="text" value="Company Profile.pdf"></td>
+                <td>Response Document</td>
+                <td><input type="file"></td>
+                <td>Current User</td>
+                <td>${now}</td>
+                <td><button class="action-btn" onclick="this.closest('tr').remove(); updateDocCount()">Remove</button></td>
+            `;
+            docCounter++;
+            updateDocCount();
+        }
+        function updateDocCount() {
+            docCounter = document.querySelectorAll('#docsTable tbody tr').length;
+            document.getElementById('docCount').innerText = `${docCounter} document${docCounter !== 1 ? 's' : ''}`;
+        }
+
+        // Skills
+        let skillCounter = 0;
+        function addSkillRow() {
+            const tbody = document.querySelector('#skillsTable tbody');
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td><input type="text" value="Housing Market Analysis"></td>
+                <td>
+                    <select>
+                        <option>Expert</option>
+                        <option>Intermediate</option>
+                        <option>Beginner</option>
+                    </select>
+                </td>
+                <td><textarea rows="2">Led 5 regional housing studies...</textarea></td>
+                <td><button class="action-btn" onclick="this.closest('tr').remove(); updateSkillCount()">Remove</button></td>
+            `;
+            skillCounter++;
+            updateSkillCount();
+        }
+        function updateSkillCount() {
+            skillCounter = document.querySelectorAll('#skillsTable tbody tr').length;
+            document.getElementById('skillCount').innerText = `${skillCounter} skill${skillCounter !== 1 ? 's' : ''}`;
+        }
+
+        // Experience
+        let expCounter = 0;
+        function addExperienceRow() {
+            const tbody = document.querySelector('#experienceTable tbody');
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td><input type="text" value="Norfolk Housing Study"></td>
+                <td><textarea rows="2">Conducted comprehensive market analysis...</textarea></td>
+                <td><input type="text" value="2023-2024"></td>
+                <td><button class="action-btn" onclick="this.closest('tr').remove(); updateExpCount()">Remove</button></td>
+            `;
+            expCounter++;
+            updateExpCount();
+        }
+        function updateExpCount() {
+            expCounter = document.querySelectorAll('#experienceTable tbody tr').length;
+            document.getElementById('expCount').innerText = `${expCounter} entr${expCounter !== 1 ? 'ies' : 'y'}`;
+        }
+
+        // Certifications
+        let certCounter = 0;
+        function addCertRow() {
+            const tbody = document.querySelector('#certTable tbody');
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td><input type="text" value="AICP Certification"></td>
+                <td><input type="text" value="American Planning Association"></td>
+                <td><input type="date" value="2027-12-31"></td>
+                <td><input type="file"></td>
+                <td><button class="action-btn" onclick="this.closest('tr').remove(); updateCertCount()">Remove</button></td>
+            `;
+            certCounter++;
+            updateCertCount();
+        }
+        function updateCertCount() {
+            certCounter = document.querySelectorAll('#certTable tbody tr').length;
+            document.getElementById('certCount').innerText = `${certCounter} certification${certCounter !== 1 ? 's' : ''}`;
+        }
+
+        // References
+        let refCounter = 0;
+        function addRefRow() {
+            const tbody = document.querySelector('#refTable tbody');
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td>
+                    <select>
+                        <option>Business Reference</option>
+                        <option>Personal Reference</option>
+                    </select>
+                </td>
+                <td><input type="text" value="Jane Doe"></td>
+                <td><input type="text" value="Richmond Housing Study"></td>
+                <td><input type="text" value="jane@city.gov"></td>
+                <td><textarea rows="2">Excellent partner, delivered ahead of schedule...</textarea></td>
+                <td><button class="action-btn" onclick="this.closest('tr').remove(); updateRefCount()">Remove</button></td>
+            `;
+            refCounter++;
+            updateRefCount();
+        }
+        function updateRefCount() {
+            refCounter = document.querySelectorAll('#refTable tbody tr').length;
+            document.getElementById('refCount').innerText = `${refCounter} reference${refCounter !== 1 ? 's' : ''}`;
+        }
+
+        // Custom Criteria
+        let criteriaCounter = 0;
+        function addCriterionRow() {
+            const tbody = document.querySelector('#criteriaTable tbody');
+            const row = tbody.insertRow();
+            criteriaCounter++;
+            row.innerHTML = `
+                <td>${criteriaCounter}</td>
+                <td><input type="text" value="Technical Approach" readonly></td>
+                <td><textarea rows="2" readonly>Describe your methodology...</textarea></td>
+                <td>
+                    <select disabled>
+                        <option>Qualitative Narrative</option>
+                    </select>
+                </td>
+                <td><input type="file"></td>
+                <td><textarea rows="4" placeholder="Enter your detailed response here..."></textarea></td>
+                <td><button class="action-btn" onclick="this.closest('tr').remove(); renumberCriteria()">Remove</button></td>
+            `;
+        }
+        function renumberCriteria() {
+            const rows = document.querySelectorAll('#criteriaTable tbody tr');
+            criteriaCounter = 0;
+            rows.forEach(row => {
+                criteriaCounter++;
+                row.cells[0].innerText = criteriaCounter;
+            });
+        }
+
+        // Cost
+        let costCounter = 0;
+        function addCostRow() {
+            const tbody = document.querySelector('#costTable tbody');
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td><input type="text" value="Market Analysis"></td>
+                <td><input type="number" value="45000"></td>
+                <td><textarea rows="2">Includes data collection, modeling, and report</textarea></td>
+                <td><button class="action-btn" onclick="this.closest('tr').remove(); updateCostCount()">Remove</button></td>
+            `;
+            costCounter++;
+            updateCostCount();
+        }
+        function updateCostCount() {
+            costCounter = document.querySelectorAll('#costTable tbody tr').length;
+            document.getElementById('costCount').innerText = `${costCounter} item${costCounter !== 1 ? 's' : ''}`;
+        }
+    </script>
+<script>
+// --- lightweight fetch helper ---
+async function api(route, method='GET', body=null, qs={}) {
+  const u = new URL(CONFIG.APPSCRIPT_BASE);
+  u.searchParams.set('route', route);
+  Object.entries(qs).forEach(([k,v]) => u.searchParams.set(k, v));
+  const res = await fetch(u.toString(), {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : null,
+    mode: 'cors',
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+// --- utilities ---
+function val(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+function bool(el) { return !!(el && (el.checked || el.value === 'true')); }
+function parseNum(v) { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; }
+
+function serializeTableRows(tableId, mapFn) {
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  if (!tbody) return [];
+  return Array.from(tbody.querySelectorAll('tr')).map(row => mapFn(row));
+}
+
+// turn criteria table rows into objects with stable keys
+function getCriteriaFromProposal() {
+  return serializeTableRows('criteriaTable', row => ({
+    number: row.cells[0]?.textContent?.trim() || '',
+    criterion: row.cells[1]?.querySelector('input')?.value || '',
+    description: row.cells[2]?.querySelector('textarea')?.value || '',
+    weightPct: parseNum(row.cells[3]?.querySelector('input')?.value),
+    maxPoints: parseNum(row.cells[4]?.textContent || '0'),
+    method: row.cells[5]?.querySelector('select')?.value || '',
+    required: row.cells[6]?.querySelector('input[type="checkbox"]')?.checked || false,
+    requiresDoc: !!row.cells[7]?.querySelector('input[type="file"]')
+  }));
+}
+
+function getSkillsFromProposal() {
+  return serializeTableRows('skillsTable', row => ({
+    label: row.cells[0]?.querySelector('input')?.value || '',
+    level: row.cells[1]?.querySelector('select')?.value || '',
+    required: row.cells[2]?.querySelector('input[type="checkbox"]')?.checked || false,
+    weightPct: parseNum(row.cells[3]?.querySelector('input')?.value)
+  }));
+}
+
+function getExperienceFromProposal() {
+  return serializeTableRows('experienceTable', row => ({
+    name: row.cells[0]?.querySelector('input')?.value || '',
+    description: row.cells[1]?.querySelector('textarea')?.value || '',
+    years: row.cells[2]?.querySelector('input')?.value || '',
+    required: row.cells[3]?.querySelector('input[type="checkbox"]')?.checked || false,
+    weightPct: parseNum(row.cells[4]?.querySelector('input')?.value)
+  }));
+}
+
+function getCertsFromProposal() {
+  return serializeTableRows('certTable', row => ({
+    name: row.cells[0]?.querySelector('input')?.value || '',
+    body: row.cells[1]?.querySelector('input')?.value || '',
+    minExpDate: row.cells[2]?.querySelector('input[type="date"]')?.value || '',
+    required: row.cells[4]?.querySelector('input[type="checkbox"]')?.checked || false,
+    weightPct: parseNum(row.cells[5]?.querySelector('input')?.value)
+  }));
+}
+
+function getRefsFromProposal() {
+  return serializeTableRows('refTable', row => ({
+    type: row.cells[0]?.querySelector('select')?.value || '',
+    required: row.cells[1]?.querySelector('input[type="checkbox"]')?.checked || false,
+    weightPct: parseNum(row.cells[2]?.querySelector('input')?.value)
+  }));
+}
+
+function getCostsFromProposal() {
+  const section = document.getElementById('costSection');
+  if (!section || section.style.display === 'none') return [];
+  return serializeTableRows('costTable', row => ({
+    item: row.cells[0]?.querySelector('input')?.value || '',
+    amount: parseNum(row.cells[1]?.querySelector('input')?.value),
+    breakdown: row.cells[2]?.querySelector('textarea')?.value || '',
+    required: row.cells[3]?.querySelector('input[type="checkbox"]')?.checked || false,
+    weightPct: parseNum(row.cells[4]?.querySelector('input')?.value)
+  }));
+}
+
+function globalWeightPct() {
+  const parts = [
+    ...getSkillsFromProposal().map(x=>x.weightPct||0),
+    ...getExperienceFromProposal().map(x=>x.weightPct||0),
+    ...getCertsFromProposal().map(x=>x.weightPct||0),
+    ...getRefsFromProposal().map(x=>x.weightPct||0),
+    ...getCriteriaFromProposal().map(x=>x.weightPct||0),
+    ...getCostsFromProposal().map(x=>x.weightPct||0),
+  ];
+  return parts.reduce((a,b)=>a+b,0);
+}
+</script>
+</body>
+</html>

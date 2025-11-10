@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AccelRFx | Profile</title>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2F5597" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="styles/theme.css" />
+  <link rel="stylesheet" href="styles/styles.css" />
+  <link rel="stylesheet" href="styles/responsive.css" />
+  <style>
+    /* Glass cards just for this page */
+    .glass-card{
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(255,255,255,0.65);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+    }
+    .section-header{
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .section-header h2{ margin: 0; color:#1f2d4d; }
+    .inline-actions{ display:flex; gap:8px; align-items:center; }
+    .nav-icon{ width:18px; height:18px; display:block; }
+    .sites-list{ display:flex; flex-direction:column; gap:10px; }
+    .site-item{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:10px; border:1px solid #e6ebf5; border-radius:10px; background:#fff; }
+    .site-item .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .site-actions{ display:flex; gap:8px; margin-left:auto; }
+    .tiny{ font-size:0.85rem; color:#5b6b87; }
+    #profileMap{ height: 360px; border-radius: 12px; overflow: hidden; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <header class="hero-bar">
+    <div class="hero-left">
+      <button onclick="window.location.href='index.html'" class="icon-btn" aria-label="Back">⟵</button>
+      <img src="assets/accel_logo.png" alt="AccelRFx Logo" class="logo" />
+      <h1>Profile</h1>
+    </div>
+    <div class="hero-right">
+      <button onclick="window.location.href='index.html'" class="icon-btn" aria-label="Home">
+        <img src="assets/icons/dashboard.svg" class="icon" alt=""/>
+      </button>
+    </div>
+  </header>
+
+  <main style="position:fixed; top:70px; bottom:50px; left:0; right:0; overflow:auto; padding:16px;">
+    <form id="profileForm" style="max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:16px;">
+
+      <!-- Company Info -->
+      <section class="form-section glass-card">
+        <div class="section-header">
+          <h2>Company</h2>
+        </div>
+        <div class="form-grid">
+          <label>Company Name<input id="companyName" required/></label>
+          <label>DBA (Optional)<input id="companyDBA"/></label>
+          <label>Website<input id="companyWebsite" type="url" placeholder="https://"/></label>
+          <label>Brand Color (Hex)<input id="brandColor" placeholder="#2F5597"/></label>
+        </div>
+        <label>Tagline<input id="tagline"/></label>
+        <label>Description<textarea id="companyDescription" rows="3" placeholder="What you do, value prop, service scope..."></textarea></label>
+        <div class="form-grid">
+          <label>NAICS Codes (comma-separated)<input id="naics"/></label>
+          <label>Capabilities / Keywords<input id="capabilities" placeholder="e.g., civil engineering, housing, GIS"/></label>
+        </div>
+      </section>
+
+      <!-- Contacts -->
+      <section class="form-section glass-card">
+        <div class="section-header"><h2>Contacts</h2></div>
+        <div class="form-grid">
+          <label>Primary Contact Name<input id="primaryName" required/></label>
+          <label>Title<input id="primaryTitle"/></label>
+          <label>Email<input id="primaryEmail" type="email" required/></label>
+          <label>Phone<input id="primaryPhone" type="tel"/></label>
+        </div>
+        <details>
+          <summary class="tiny">Add secondary contact</summary>
+          <div class="form-grid" style="margin-top:10px;">
+            <label>Secondary Name<input id="secondaryName"/></label>
+            <label>Title<input id="secondaryTitle"/></label>
+            <label>Email<input id="secondaryEmail" type="email"/></label>
+            <label>Phone<input id="secondaryPhone" type="tel"/></label>
+          </div>
+        </details>
+      </section>
+
+      <!-- Compliance / Certifications -->
+      <section class="form-section glass-card">
+        <div class="section-header"><h2>Compliance & Certifications</h2></div>
+        <div class="form-grid">
+          <label>Certifications<input id="certifications" placeholder="e.g., 8(a), DBE, MBE, SWaM"/></label>
+          <label>Insurance Coverage<input id="insurance" placeholder="e.g., GL, Auto, WC"/></label>
+        </div>
+        <div class="form-grid">
+          <label>Licenses / Registrations<input id="licenses" placeholder="e.g., State Contractor #, PE #"/></label>
+          <label>Referral Policy (Optional)<input id="referralPolicy" placeholder="e.g., 5% finder fee upon award"/></label>
+        </div>
+      </section>
+
+      <!-- Social -->
+      <section class="form-section glass-card">
+        <div class="section-header"><h2>Social</h2></div>
+        <div class="form-grid">
+          <label>LinkedIn<input id="socialLinkedIn" type="url" placeholder="https://linkedin.com/..."/></label>
+          <label>YouTube<input id="socialYouTube" type="url" placeholder="https://youtube.com/..."/></label>
+          <label>X (Twitter)<input id="socialX" type="url" placeholder="https://x.com/..."/></label>
+          <label>Facebook<input id="socialFacebook" type="url" placeholder="https://facebook.com/..."/></label>
+        </div>
+      </section>
+
+      <!-- Media -->
+      <section class="form-section glass-card">
+        <div class="section-header"><h2>Media</h2></div>
+        <div class="form-grid">
+          <label>Profile Video Link<input id="videoUrl" type="url" placeholder="YouTube/Vimeo link"/></label>
+          <label>Logo URL<input id="logoUrl" type="url" placeholder="https://.../logo.png"/></label>
+        </div>
+        <p class="tiny">Your video will play inside the map popup (muted autoplay where supported).</p>
+      </section>
+
+      <!-- Sites & Default Map Location -->
+      <section class="form-section glass-card">
+        <div class="section-header">
+          <h2>Addresses & Sites</h2>
+          <div class="inline-actions">
+            <button type="button" id="addSiteBtn" class="secondary-btn">Add Site</button>
+          </div>
+        </div>
+
+        <!-- Primary site fields -->
+        <h3 style="margin:0 0 8px 0;">Primary Address</h3>
+        <div class="form-grid">
+          <label>Address Line 1<input id="addr1"/></label>
+          <label>Address Line 2<input id="addr2"/></label>
+          <label>City<input id="city"/></label>
+          <label>State/Region<input id="state"/></label>
+          <label>Postal Code<input id="postal"/></label>
+          <label>Country<input id="country" value="USA"/></label>
+          <label>Latitude<input id="lat" type="number" step="any"/></label>
+          <label>Longitude<input id="lng" type="number" step="any"/></label>
+        </div>
+
+        <div class="sites-list" id="sitesList" style="margin-top:12px;"></div>
+
+        <div id="profileMap"></div>
+      </section>
+
+      <!-- Save -->
+      <section class="form-section glass-card" style="display:flex; justify-content:flex-end;">
+        <button class="primary-btn" type="submit">Save Profile</button>
+      </section>
+    </form>
+  </main>
+
+  <footer>
+    <p>© 2025 AccelRFx v1.0.0</p>
+    <a href="https://accelrfx.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+    <a href="https://accelrfx.com/terms" target="_blank" rel="noopener">Terms of Service</a>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+  <script type="module" src="scripts/profile.js"></script>
+</body>
+</html>

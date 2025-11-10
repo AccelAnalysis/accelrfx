@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200pt" height="1200pt" version="1.1" viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <clipPath id="f">
+   <path d="m222.14 382h53.855v50h-53.855z"/>
+  </clipPath>
+  <clipPath id="e">
+   <path d="m924 382h53.859v50h-53.859z"/>
+  </clipPath>
+  <clipPath id="d">
+   <path d="m222.14 575h53.855v50h-53.855z"/>
+  </clipPath>
+  <clipPath id="c">
+   <path d="m924 575h53.859v50h-53.859z"/>
+  </clipPath>
+  <clipPath id="b">
+   <path d="m222.14 768h53.855v50h-53.855z"/>
+  </clipPath>
+  <clipPath id="a">
+   <path d="m924 768h53.859v50h-53.859z"/>
+  </clipPath>
+ </defs>
+ <g clip-path="url(#f)">
+  <path d="m222.14 407.29v24.562h52.898v-49.125h-52.898z" fill="#fff"/>
+ </g>
+ <path d="m312.83 407.29v24.562h574.34v-49.125h-574.34z" fill="#fff"/>
+ <g clip-path="url(#e)">
+  <path d="m924.96 407.29v24.562h52.898v-49.125h-52.898z" fill="#fff"/>
+ </g>
+ <g clip-path="url(#d)">
+  <path d="m222.14 600v24.562h52.898v-49.125h-52.898z" fill="#fff"/>
+ </g>
+ <path d="m312.83 600v24.562h574.34v-49.125h-574.34z" fill="#fff"/>
+ <g clip-path="url(#c)">
+  <path d="m924.96 600v24.562h52.898v-49.125h-52.898z" fill="#fff"/>
+ </g>
+ <g clip-path="url(#b)">
+  <path d="m222.14 792.71v24.562h52.898v-49.125h-52.898z" fill="#fff"/>
+ </g>
+ <path d="m312.83 792.71v24.562h574.34v-49.125h-574.34z" fill="#fff"/>
+ <g clip-path="url(#a)">
+  <path d="m924.96 792.71v24.562h52.898v-49.125h-52.898z" fill="#fff"/>
+ </g>
+</svg>

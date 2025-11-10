@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AccelRFx | Admin Console</title>
+
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2F5597" />
+
+  <link rel="stylesheet" href="styles/theme.css" />
+  <link rel="stylesheet" href="styles/styles.css" />
+</head>
+<body>
+  <header class="hero-bar">
+    <div class="hero-left">
+      <button onclick="window.location.href='index.html'" class="icon-btn" aria-label="Back">⟵</button>
+      <img src="assets/accel_logo.png" alt="AccelRFx Logo" class="logo" />
+      <h1>Admin Console</h1>
+    </div>
+    <div class="hero-right"></div>
+  </header>
+
+  <main class="admin-container" style="position:fixed; top:70px; bottom:50px; left:0; right:0; overflow:auto; padding:16px;">
+    <section class="form-section">
+      <h2>User and Credit Management</h2>
+      <form id="creditForm">
+        <div class="form-grid">
+          <label>User ID<input type="text" id="userId" required></label>
+          <label>Credits<input type="number" id="userCredits" min="0"></label>
+        </div>
+        <button type="submit" class="primary-btn">Update Credits</button>
+      </form>
+    </section>
+
+    <section class="form-section">
+      <h2>RFPx Records Overview</h2>
+      <div class="table-container">
+        <table id="rfpTable">
+          <thead>
+            <tr>
+              <th>ID</th><th>Title</th><th>Type</th><th>Issued</th><th>Close</th><th>Company</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 AccelRFx v1.0.0</p>
+    <a href="https://accelrfx.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+    <a href="https://accelrfx.com/terms" target="_blank" rel="noopener">Terms of Service</a>
+  </footer>
+
+  <script src="scripts/admin.js"></script>
+</body>
+</html>

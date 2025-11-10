@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFI Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .notification { background-color: lightblue; padding: 10px; margin-bottom: 10px; }
+        .section { border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; }
+        .section h2 { cursor: pointer; } /* For collapsible, but JS not implemented for all */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        input[readonly] { background-color: #f0f0f0; }
+        .add-btn { margin-top: 10px; }
+        .footer-summary { margin-top: 10px; font-weight: bold; }
+        .validation { color: red; display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Notification Banner -->
+    <div class="notification">
+        State offices and Customer Care will be closed Tuesday, November 11<sup>th</sup> and will reopen Wednesday, November 12<sup>th</sup> 8:00AM.
+    </div>
+
+    <!-- Participate Button -->
+    <button>Participate in RFx</button>
+
+    <!-- RFx General Info Section -->
+    <div class="section">
+        <h2>RFx General Info</h2>
+        <form id="rfxForm">
+            <label>Business Process Code: <input type="text" id="bpCode" readonly></label><br><br>
+            <label>Label: <input type="text" id="label" placeholder="Enter descriptive title"></label><br><br>
+            <label>Lot #: <input type="text" id="lot" readonly value="1"></label><br><br>
+            <label>Round: <input type="text" id="round" readonly value="0"></label><br><br>
+            <label>Issued Date/Time (UTC-5): <input type="datetime-local" id="issuedDate" readonly></label><br><br>
+            <label>Close Date/Time (UTC-5): <input type="datetime-local" id="closeDate"></label><br><br>
+            <label>Opportunity Type: 
+                <select id="oppType">
+                    <option value="Request for Information (RFI)">Request for Information (RFI)</option>
+                    <option value="Other">Other</option>
+                </select>
+            </label><br><br>
+            <label>Set Aside: <input type="text" id="setAside" placeholder="e.g., Small Business"></label><br><br>
+            <label>Amendment Description: <textarea id="amendDesc" rows="4" placeholder="Describe amendments if any"></textarea></label><br><br>
+            <label>Cancellation Description: <textarea id="cancelDesc" rows="4" placeholder="Describe cancellation if any"></textarea></label><br><br>
+            <label>Summary: <textarea id="summary" rows="6" placeholder="Detailed project overview"></textarea></label><br><br>
+            <label>Website: <input type="url" id="website" placeholder="https://example.com"></label><br><br>
+            <label>Process: 
+                <select id="process">
+                    <option value="Paper Responses Only">Paper Responses Only</option>
+                    <option value="Electronic">Electronic</option>
+                </select>
+            </label><br><br>
+        </form>
+    </div>
+
+    <!-- RFx Documents Section -->
+    <div class="section">
+        <h2>RFx Documents</h2>
+        <table id="docsTable">
+            <thead>
+                <tr>
+                    <th>Documentation</th>
+                    <th>Type</th>
+                    <th>Att.</th>
+                    <th>Contact</th>
+                    <th>Last Modification (UTC-5)</th>
+                    <th>Creation Date (UTC-5)</th>
+                    <th>Validity End Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <input type="text" id="docName" placeholder="Document Title">
+        <input type="file" id="docFile">
+        <button class="add-btn" onclick="addDocRow()">Add Document</button>
+        <p>1 Record(s)</p>
+    </div>
+
+    <!-- Required Skills Section -->
+    <div class="section">
+        <h2>Required Skills</h2>
+        <input type="text" id="skillName" placeholder="Skill">
+        <select id="skillLevel">
+            <option value="">-- Level --</option>
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Expert">Expert</option>
+        </select>
+        <button class="add-btn" onclick="addSkillRow()">Add</button>
+        <table id="skillsTable">
+            <thead>
+                <tr><th>Label</th><th>Level</th><th>Actions</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p>0 skills</p>
+    </div>
+
+    <!-- RFx Criteria Section -->
+    <div class="section">
+        <h2>RFx Criteria</h2>
+        <div>
+            <button class="add-btn" onclick="addCriterionRow()">Add Criterion</button>
+            <select><option>Import from Template</option></select>
+            <span>Total Weight: <span id="totalWeight">0%</span></span>
+        </div>
+        <table id="criteriaTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Criterion</th>
+                    <th>Description</th>
+                    <th>Weight (%)</th>
+                    <th>Max Points</th>
+                    <th>Method</th>
+                    <th>Mand.</th>
+                    <th>Doc</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="footer-summary">
+            Total Criteria: <span id="totalCriteria">0</span> | Total Weight: <span id="totalWeightFooter">0%</span> | Total Points: <span id="totalPoints">0</span>
+        </div>
+        <div class="validation" id="weightValidation">⚠ Weight must sum 100% for scored RFx</div>
+    </div>
+
+    <!-- Access to Questionnaire -->
+    <div class="section">
+        <h2>Access to Questionnaire</h2>
+        <!-- Placeholder for questionnaire links -->
+        <p>(Questionnaire content would go here)</p>
+    </div>
+
+    <!-- Access to Services -->
+    <div class="section">
+        <h2>Access to Services</h2>
+        <!-- Placeholder for services -->
+        <p>(Services links would go here)</p>
+    </div>
+
+    <script>
+        // Automated fields setup on load
+        window.onload = function() {
+            // Business Process Code: Automated unique ID
+            document.getElementById('bpCode').value = 'BPN' + Math.floor(Math.random() * 1000000);
+
+            // Issued Date/Time: Automated current date
+            const now = new Date();
+            const utc5Offset = now.getTimezoneOffset() + 300; // UTC-5 in minutes
+            const utc5Date = new Date(now.getTime() - utc5Offset * 60000);
+            document.getElementById('issuedDate').value = utc5Date.toISOString().slice(0, 16);
+
+            // Lot and Round: Automated defaults
+            // Already set in HTML
+        };
+
+        // RFx Documents: Add row (Manual doc name, auto type/contact/timestamps)
+        let docCounter = 0;
+        function addDocRow() {
+            const table = document.getElementById('docsTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+            const now = new Date().toLocaleString();
+
+            row.insertCell(0).innerHTML = document.getElementById('docName').value || 'Untitled';
+            row.insertCell(1).innerHTML = 'RFx Document (Approved)'; // Auto
+            row.insertCell(2).innerHTML = document.getElementById('docFile').files.length ? '📎' : ''; // Auto attachment icon
+            row.insertCell(3).innerHTML = 'Current User'; // Auto from profile
+            row.insertCell(4).innerHTML = now; // Auto
+            row.insertCell(5).innerHTML = now; // Auto
+            row.insertCell(6).innerHTML = '<input type="date" placeholder="Validity End">'; // Manual or auto
+            row.insertCell(7).innerHTML = '<button onclick="this.parentNode.parentNode.remove()">Remove</button>';
+
+            docCounter++;
+            document.querySelector('#docsTable + p').innerText = docCounter + ' Record(s)';
+            document.getElementById('docName').value = '';
+            document.getElementById('docFile').value = '';
+        }
+
+        // Required Skills: Add row (All manual)
+        let skillCounter = 0;
+        function addSkillRow() {
+            const table = document.getElementById('skillsTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+
+            row.insertCell(0).innerHTML = document.getElementById('skillName').value;
+            row.insertCell(1).innerHTML = document.getElementById('skillLevel').value;
+            row.insertCell(2).innerHTML = '<button onclick="this.parentNode.parentNode.remove(); updateSkillCount();">Remove</button>';
+
+            skillCounter++;
+            updateSkillCount();
+            document.getElementById('skillName').value = '';
+            document.getElementById('skillLevel').value = '';
+        }
+
+        function updateSkillCount() {
+            skillCounter = document.getElementById('skillsTable').rows.length - 1;
+            document.querySelector('#skillsTable + p').innerText = skillCounter + ' skills';
+        }
+
+        // RFx Criteria: Add row (Auto #, max points; Manual others; Auto totals)
+        let criteriaCounter = 0;
+        let totalWeight = 0;
+        let totalPoints = 0;
+
+        function addCriterionRow() {
+            const table = document.getElementById('criteriaTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+            criteriaCounter++;
+
+            // # Auto
+            row.insertCell(0).innerHTML = criteriaCounter;
+
+            // Criterion Name Manual
+            const nameCell = row.insertCell(1);
+            nameCell.innerHTML = '<input type="text" value="New Criterion" oninput="updateTotals()">';
+
+            // Description Manual
+            const descCell = row.insertCell(2);
+            descCell.innerHTML = '<textarea rows="2" oninput="updateTotals()"></textarea>';
+
+            // Weight % Manual
+            const weightCell = row.insertCell(3);
+            weightCell.innerHTML = '<input type="number" min="0" max="100" step="0.5" value="0" oninput="updateTotals()">';
+
+            // Max Points Auto (weight * 10)
+            row.insertCell(4).innerHTML = '0'; // Updated in updateTotals
+
+            // Method Manual
+            const methodCell = row.insertCell(5);
+            methodCell.innerHTML = `
+                <select oninput="updateTotals()">
+                    <option>Qualitative Narrative</option>
+                    <option>Scored Rubric (1-5)</option>
+                    <option>Pass/Fail</option>
+                    <option>Cost</option>
+                </select>`;
+
+            // Mandatory Checkbox Manual
+            row.insertCell(6).innerHTML = '<input type="checkbox" oninput="updateTotals()">';
+
+            // Doc Manual
+            row.insertCell(7).innerHTML = '<input type="file">';
+
+            // Actions
+            row.insertCell(8).innerHTML = '<button onclick="removeCriterionRow(this)">Remove</button>';
+
+            updateTotals();
+        }
+
+        function removeCriterionRow(btn) {
+            btn.parentNode.parentNode.remove();
+            criteriaCounter--;
+            // Re-number rows
+            const rows = document.getElementById('criteriaTable').getElementsByTagName('tbody')[0].rows;
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].cells[0].innerText = i + 1;
+            }
+            updateTotals();
+        }
+
+        function updateTotals() {
+            const rows = document.getElementById('criteriaTable').getElementsByTagName('tbody')[0].rows;
+            totalWeight = 0;
+            totalPoints = 0;
+
+            for (let row of rows) {
+                const weightInput = row.cells[3].querySelector('input');
+                const weight = parseFloat(weightInput.value) || 0;
+                totalWeight += weight;
+
+                const maxPoints = weight * 10;
+                row.cells[4].innerText = maxPoints;
+                totalPoints += maxPoints;
+            }
+
+            document.getElementById('totalWeight').innerText = totalWeight + '%';
+            document.getElementById('totalWeightFooter').innerText = totalWeight + '%';
+            document.getElementById('totalPoints').innerText = totalPoints;
+            document.getElementById('totalCriteria').innerText = criteriaCounter;
+
+            const validation = document.getElementById('weightValidation');
+            if (totalWeight !== 100) {
+                validation.style.display = 'block';
+            } else {
+                validation.style.display = 'none';
+            }
+        }
+    </script>
+
+</body>
+</html>

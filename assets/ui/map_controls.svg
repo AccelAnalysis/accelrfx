@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <circle cx="12" cy="12" r="8" fill="#2F5597"/>
+  <text x="8" y="16" font-size="10" fill="#fff">+</text>
+  <circle cx="12" cy="32" r="8" fill="#2F5597"/>
+  <text x="8" y="36" font-size="10" fill="#fff">-</text>
+  <rect x="8" y="48" width="8" height="8" rx="2" fill="#FFD965"/>
+  <path d="M40 20 L56 32 L40 44 Z" fill="#2F5597"/>
+  <title>Map Controls: Zoom, Reset, Lasso</title>
+</svg>

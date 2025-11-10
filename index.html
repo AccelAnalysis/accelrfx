@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AccelRFx | Unified RFP Map</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2F5597" />
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="styles/theme.css" />
+  <link rel="stylesheet" href="styles/styles.css" />
+  <link rel="stylesheet" href="styles/responsive.css" />
+  <link rel="stylesheet" href="styles/targeting.css" />
+
+  <style id="map-sizing-patch">
+    html, body { height: 100%; }
+    #mapContainer { min-height: calc(100vh - 120px); display: flex; }
+    #map { flex: 1 1 auto; height: 100%; }
+    .layout-row, .main-content { display: flex; }
+  </style>
+
+</head>
+<body>
+  <header class="hero-bar">
+    <div class="hero-left">
+      <button id="drawerToggle" class="icon-btn" aria-label="Open Menu">
+        <img src="assets/ui/drawer_icon.svg" alt="Menu" height="26" />
+      </button>
+      <img src="assets/accel_logo.png" alt="AccelRFx Logo" class="logo" />
+      <h1>AccelRFx</h1>
+    </div>
+    <div class="hero-right">
+      <span id="creditBalance" class="chip">Credits: 100</span>
+      <button id="notificationsBtn" class="icon-btn" aria-label="Notifications">
+        <img src="assets/icons/bell.svg" alt="Notifications" class="icon" />
+      </button>
+      <button id="profileBtn" class="icon-btn" aria-label="Profile">
+        <img src="assets/icons/user.svg" alt="Profile" class="icon" />
+      </button>
+    </div>
+  </header>
+
+  <aside id="drawerMenu" aria-label="Side Navigation">
+    <nav>
+      <ul>
+        <li data-nav="dashboard"><img src="assets/icons/dashboard.svg" class="nav-icon" alt=""/> Dashboard</li>
+        <li data-nav="create"><img src="assets/icons/rfpx.svg" class="nav-icon" alt=""/> Create RFx</li>
+        <li data-nav="responses"><img src="assets/icons/responses.svg" class="nav-icon" alt=""/> Responses</li>
+        <li data-nav="analytics"><img src="assets/icons/analytics.svg" class="nav-icon" alt=""/> Analytics</li>
+        <li data-nav="settings"><img src="assets/icons/settings.svg" class="nav-icon" alt=""/> Settings</li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main id="mapContainer" role="main">
+    <div id="map"></div>
+    <div id="floatingSearch" role="search" aria-label="Search">
+      <img src="assets/icons/search.svg" alt="" class="icon muted" aria-hidden="true"/>
+      <input type="text" id="searchInput" placeholder="Search RFPs, Companies, or Locations..." />
+      <button id="searchBtn" class="primary-btn">Search</button>
+    </div>
+  </main>
+
+  <!-- Overlay for sheet -->
+  <div id="targetOverlay" aria-hidden="true"></div>
+
+  <!-- Bottom Sheet: Target Market -->
+  <section id="targetSheet" aria-label="Target Market Panel" aria-hidden="true">
+    <div class="sheet-head">
+      <div class="drag-handle" aria-hidden="true"></div>
+      <div class="head-left">
+        <h3>Target Market</h3>
+        <p class="muted">Radius rings + robust filters. Counts update live.</p>
+      </div>
+      <button id="targetClose" class="icon-btn ghost" aria-label="Close">
+        ✕
+      </button>
+    </div>
+
+    <div class="sheet-body">
+      <div class="tm-grid">
+        <div class="tm-card">
+          <h4>Radius Rings</h4>
+          <div class="tm-fields two">
+            <label># of Rings
+              <input type="number" id="ringCount" min="1" max="5" value="3"/>
+            </label>
+            <label>Distance (mi)
+              <input type="number" id="ringStep" min="0.1" step="0.1" value="1.0"/>
+            </label>
+          </div>
+          <button id="applyRings" class="secondary-btn">Update Rings</button>
+          <p class="tiny muted">Rings are drawn from your default site. Set default in Profile.</p>
+        </div>
+
+        <div class="tm-card">
+          <h4>Filters (Robust)</h4>
+          <div class="tm-fields two">
+            <label>Income ≥ <input type="number" id="f_income_min" step="1000" placeholder="e.g., 50000"/></label>
+            <label>Income ≤ <input type="number" id="f_income_max" step="1000" placeholder="e.g., 150000"/></label>
+          </div>
+          <div class="tm-fields two">
+            <label>Age ≥ <input type="number" id="f_age_min" step="1" placeholder="18"/></label>
+            <label>Age ≤ <input type="number" id="f_age_max" step="1" placeholder="65"/></label>
+          </div>
+          <div class="tm-fields two">
+            <label>Homeowner
+              <select id="f_owner">
+                <option value="">Any</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </label>
+            <label>Household Size ≥ <input type="number" id="f_hh_min" step="1" placeholder="1"/></label>
+          </div>
+          <div class="tm-fields two">
+            <label>Household Size ≤ <input type="number" id="f_hh_max" step="1" placeholder="6"/></label>
+            <label>Lifestyle Tag(s)
+              <input id="f_lifestyle" placeholder="comma-separated: outdoor, foodie, tech"/>
+            </label>
+          </div>
+          <div class="tm-fields two">
+            <label>NAICS (contains)<input id="f_naics" placeholder="e.g., 236, 541330"/></label>
+            <label>Employees ≥ <input type="number" id="f_emp_min" step="1"/></label>
+          </div>
+          <div class="tm-fields two">
+            <label>Employees ≤ <input type="number" id="f_emp_max" step="1"/></label>
+            <label>Revenue ≥ <input type="number" id="f_rev_min" step="10000"/></label>
+          </div>
+          <div class="tm-fields two">
+            <label>Revenue ≤ <input type="number" id="f_rev_max" step="10000"/></label>
+            <div></div>
+          </div>
+          <button id="applyFilters" class="secondary-btn">Apply Filters</button>
+        </div>
+
+        <div class="tm-card">
+          <h4>Counts</h4>
+          <div id="tmCounts" class="counts"></div>
+          <button id="ctaMail" class="primary-btn">Send Marketing Mail</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 AccelRFx v1.0.0</p>
+    <a href="https://accelrfx.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+    <a href="https://accelrfx.com/terms" target="_blank" rel="noopener">Terms of Service</a>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+  <script type="module" src="scripts/app.js"></script>
+  <script type="module" src="scripts/targeting.js"></script>
+
+  <script type="module" src="scripts/nav.js"></script>
+  <script type="module" src="scripts/map-sizer.js"></script>
+</body>
+</html>

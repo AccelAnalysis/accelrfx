@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AccelRFx | Create or Edit RFPx</title>
+
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2F5597" />
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="styles/theme.css" />
+  <link rel="stylesheet" href="styles/styles.css" />
+</head>
+<body>
+  <header class="hero-bar">
+    <div class="hero-left">
+      <button onclick="window.location.href='index.html'" class="icon-btn" aria-label="Back">⟵</button>
+      <img src="assets/accel_logo.png" alt="AccelRFx Logo" class="logo" />
+      <h1>Create RFPx</h1>
+    </div>
+    <div class="hero-right"></div>
+  </header>
+
+  <main style="position:fixed; top:70px; bottom:50px; left:0; right:0; overflow:auto;">
+    <form id="rfpxForm" class="form-section" style="max-width:1100px; margin:16px auto;">
+      <h2>RFPx Details</h2>
+      <div class="form-grid">
+        <label>Opportunity Title<input type="text" id="rfpTitle" required></label>
+        <label>Opportunity Type
+          <select id="rfpType">
+            <option>RFP</option>
+            <option>RFQ</option>
+            <option>RFI</option>
+          </select>
+        </label>
+        <label>Issued Date<input type="date" id="issuedDate" required></label>
+        <label>Close Date<input type="date" id="closeDate" required></label>
+      </div>
+
+      <label>Description<textarea id="rfpDescription" rows="4"></textarea></label>
+      <label>Tags<input type="text" id="rfpTags" placeholder="e.g. Housing, Consulting, Engineering"></label>
+
+      <div id="proposalMap" style="height:420px; margin-top:10px;"></div>
+
+      <h3>Attachments</h3>
+      <input type="file" id="rfpAttachment" multiple />
+
+      <div class="form-actions" style="margin-top:16px;">
+        <button type="submit" class="primary-btn">Submit RFPx</button>
+      </div>
+    </form>
+  </main>
+
+  <footer>
+    <p>© 2025 AccelRFx v1.0.0</p>
+    <a href="https://accelrfx.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+    <a href="https://accelrfx.com/terms" target="_blank" rel="noopener">Terms of Service</a>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+  <script type="module" src="config.js"></script>
+  <script type="module" src="shared.js"></script>
+  <script src="scripts/proposal.js"></script>
+</body>
+</html>

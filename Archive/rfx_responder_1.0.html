@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFx Response Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 50px; }
+        .persistent-banner { background-color: #f0f0f0; padding: 10px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+        .section { border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; }
+        .section h2 { cursor: pointer; } /* For collapsible, but JS not implemented for all */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        input[readonly], textarea[readonly], select[disabled] { background-color: #f0f0f0; }
+        .add-btn { margin-bottom: 10px; }
+        .footer-summary { margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- Persistent Banner -->
+    <div class="persistent-banner">
+        <div>RFx Response</div>
+        <div>
+            <button onclick="alert('Draft Saved')">Save Draft</button>
+            <button onclick="alert('Response Submitted')">Submit Response</button>
+            <button onclick="alert('Exited')">Exit</button>
+        </div>
+    </div>
+
+    <!-- RFx General Info Section (Read-only) -->
+    <div class="section">
+        <h2>RFx General Info</h2>
+        <form id="rfxForm">
+            <label>Business Process Code: <input type="text" id="bpCode" readonly value="Enter code"></label><br><br>
+            <label>RFx Title: <input type="text" id="label" readonly value="Enter descriptive title"></label><br><br>
+            <label>Lot #: <input type="text" id="lot" readonly value="1"></label><br><br>
+            <label>Round: <input type="text" id="round" readonly value="0"></label><br><br>
+            <label>Issued Date/Time (UTC-5): <input type="datetime-local" id="issuedDate" readonly></label><br><br>
+            <label>Close Date/Time (UTC-5): <input type="datetime-local" id="closeDate" readonly></label><br><br>
+            <label>Opportunity Type: 
+                <select id="oppType" disabled onchange="toggleCostSection()">
+                    <option value="Request for Information (RFI)">Request for Information (RFI)</option>
+                    <option value="Request for Proposal (RFP)">Request for Proposal (RFP)</option>
+                    <option value="Other">Other</option>
+                </select>
+            </label><br><br>
+            <label>Set Aside: <input type="text" id="setAside" readonly value="e.g., Small Business"></label><br><br>
+            <label>Summary: <textarea id="summary" rows="6" readonly>Detailed project overview</textarea></label><br><br>
+            <label>Website: <input type="url" id="website" readonly value="https://example.com"></label><br><br>
+            <label>Process: 
+                <select id="process" disabled>
+                    <option value="Paper Responses Only">Paper Responses Only</option>
+                    <option value="Electronic">Electronic</option>
+                </select>
+            </label><br><br>
+        </form>
+    </div>
+
+    <!-- Responder Information Section -->
+    <div class="section">
+        <h2>Responder Information</h2>
+        <form id="responderForm">
+            <label>Company Name: <input type="text" placeholder="Enter company name"></label><br><br>
+            <label>Address: <textarea rows="3" placeholder="Enter address"></textarea></label><br><br>
+            <label>Contact Person: <input type="text" placeholder="Enter contact person"></label><br><br>
+            <label>Email: <input type="email" placeholder="Enter email"></label><br><br>
+            <label>Phone: <input type="tel" placeholder="Enter phone number"></label><br><br>
+        </form>
+    </div>
+
+    <!-- Supporting Documents Section -->
+    <div class="section">
+        <h2>Supporting Documents</h2>
+        <table id="docsTable">
+            <thead>
+                <tr>
+                    <th>Documentation</th>
+                    <th>Type</th>
+                    <th>Att.</th>
+                    <th>Contact</th>
+                    <th>Last Modification (UTC-5)</th>
+                    <th>Creation Date (UTC-5)</th>
+                    <th>Validity End Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <input type="text" id="docName" placeholder="Document Title">
+        <input type="file" id="docFile">
+        <button class="add-btn" onclick="addDocRow()">Add Document</button>
+        <p id="docCount">0 Record(s)</p>
+    </div>
+
+    <!-- Skills Section -->
+    <div class="section">
+        <h2>Your Skills</h2>
+        <button class="add-btn" onclick="addSkillRow()">Add Skill</button>
+        <table id="skillsTable">
+            <thead>
+                <tr><th>Label</th><th>Level</th><th>Description</th><th>Actions</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="skillCount">0 skills</p>
+    </div>
+
+    <!-- Experience/Past Performance Section -->
+    <div class="section">
+        <h2>Your Experience/Past Performance</h2>
+        <button class="add-btn" onclick="addExperienceRow()">Add Experience</button>
+        <table id="experienceTable">
+            <thead>
+                <tr><th>Name</th><th>Description</th><th>Years</th><th>Actions</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="expCount">0 items</p>
+    </div>
+
+    <!-- Certifications/Credentials Section -->
+    <div class="section">
+        <h2>Your Certifications/Credentials</h2>
+        <button class="add-btn" onclick="addCertRow()">Add Certification</button>
+        <table id="certTable">
+            <thead>
+                <tr><th>Name</th><th>Body</th><th>Exp. Date</th><th>Doc</th><th>Actions</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="certCount">0 items</p>
+    </div>
+
+    <!-- References Section -->
+    <div class="section">
+        <h2>Your References</h2>
+        <button class="add-btn" onclick="addRefRow()">Add Reference</button>
+        <table id="refTable">
+            <thead>
+                <tr><th>Reference Type</th><th>Name</th><th>Project</th><th>Contact Info</th><th>Testimonial</th><th>Actions</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="refCount">0 items</p>
+    </div>
+
+    <!-- Responses to Custom RFx Criteria Section -->
+    <div class="section">
+        <h2>Responses to Custom RFx Criteria</h2>
+        <div>
+            <button class="add-btn" onclick="addCriterionRow()">Add Response to Criterion</button>
+            <select><option>Import from Template</option></select>
+        </div>
+        <table id="criteriaTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Criterion</th>
+                    <th>Description</th>
+                    <th>Method</th>
+                    <th>Doc</th>
+                    <th>Response</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Cost/Financial Proposal Section (toggleable) -->
+    <div class="section" id="costSection" style="display: none;">
+        <h2>Your Cost/Financial Proposal</h2>
+        <button class="add-btn" onclick="addCostRow()">Add Cost Item</button>
+        <table id="costTable">
+            <thead>
+                <tr><th>Item</th><th>Amount</th><th>Breakdown</th><th>Actions</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="costCount">0 items</p>
+    </div>
+
+    <script>
+        // Automated fields setup on load
+        window.onload = function() {
+            // Issued Date/Time: Automated current date
+            const now = new Date();
+            const utc5Offset = now.getTimezoneOffset() + 300; // UTC-5 in minutes
+            const utc5Date = new Date(now.getTime() - utc5Offset * 60000);
+            document.getElementById('issuedDate').value = utc5Date.toISOString().slice(0, 16);
+
+            toggleCostSection(); // Initial toggle
+        };
+
+        // Toggle Cost Section
+        function toggleCostSection() {
+            const oppType = document.getElementById('oppType').value;
+            document.getElementById('costSection').style.display = (oppType === 'Request for Proposal (RFP)') ? 'block' : 'none';
+        }
+
+        // RFx Documents: Add row (unchanged, but for responder documents)
+        let docCounter = 0;
+        function addDocRow() {
+            const table = document.getElementById('docsTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+            const now = new Date().toLocaleString();
+
+            row.insertCell(0).innerHTML = document.getElementById('docName').value || 'Untitled';
+            row.insertCell(1).innerHTML = 'Response Document';
+            row.insertCell(2).innerHTML = document.getElementById('docFile').files.length ? '📎' : '';
+            row.insertCell(3).innerHTML = 'Responder';
+            row.insertCell(4).innerHTML = now;
+            row.insertCell(5).innerHTML = now;
+            row.insertCell(6).innerHTML = '<input type="date" placeholder="Validity End">';
+            row.insertCell(7).innerHTML = '<button onclick="this.parentNode.parentNode.remove(); updateDocCount();">Remove</button>';
+
+            docCounter++;
+            updateDocCount();
+            document.getElementById('docName').value = '';
+            document.getElementById('docFile').value = '';
+        }
+        function updateDocCount() {
+            docCounter = document.getElementById('docsTable').rows.length - 1;
+            document.getElementById('docCount').innerText = docCounter + ' Record(s)';
+        }
+
+        // Skills: Add editable row (removed required and weight, added description)
+        let skillCounter = 0;
+        function addSkillRow() {
+            const table = document.getElementById('skillsTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+
+            const labelCell = row.insertCell(0);
+            labelCell.innerHTML = '<input type="text" value="New Skill">';
+            const levelCell = row.insertCell(1);
+            levelCell.innerHTML = `
+                <select>
+                    <option value="">-- Level --</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Expert">Expert</option>
+                </select>`;
+            const descCell = row.insertCell(2);
+            descCell.innerHTML = '<textarea rows="2"></textarea>';
+            row.insertCell(3).innerHTML = '<button onclick="this.parentNode.parentNode.remove(); updateSkillCount();">Remove</button>';
+
+            skillCounter++;
+            updateSkillCount();
+        }
+        function updateSkillCount() {
+            skillCounter = document.getElementById('skillsTable').rows.length - 1;
+            document.getElementById('skillCount').innerText = skillCounter + ' skills';
+        }
+
+        // Experience: Add editable row (removed required and weight)
+        let expCounter = 0;
+        function addExperienceRow() {
+            const table = document.getElementById('experienceTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+
+            const nameCell = row.insertCell(0);
+            nameCell.innerHTML = '<input type="text" value="New Project">';
+            const descCell = row.insertCell(1);
+            descCell.innerHTML = '<textarea rows="2"></textarea>';
+            const yearsCell = row.insertCell(2);
+            yearsCell.innerHTML = '<input type="number" min="0" value="0">';
+            row.insertCell(3).innerHTML = '<button onclick="this.parentNode.parentNode.remove(); updateExpCount();">Remove</button>';
+
+            expCounter++;
+            updateExpCount();
+        }
+        function updateExpCount() {
+            expCounter = document.getElementById('experienceTable').rows.length - 1;
+            document.getElementById('expCount').innerText = expCounter + ' items';
+        }
+
+        // Certifications: Add editable row (removed required and weight)
+        let certCounter = 0;
+        function addCertRow() {
+            const table = document.getElementById('certTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+
+            const nameCell = row.insertCell(0);
+            nameCell.innerHTML = '<input type="text" value="New Certification">';
+            const bodyCell = row.insertCell(1);
+            bodyCell.innerHTML = '<input type="text" value="">';
+            const expDateCell = row.insertCell(2);
+            expDateCell.innerHTML = '<input type="date">';
+            const docCell = row.insertCell(3);
+            docCell.innerHTML = '<input type="file">';
+            row.insertCell(4).innerHTML = '<button onclick="this.parentNode.parentNode.remove(); updateCertCount();">Remove</button>';
+
+            certCounter++;
+            updateCertCount();
+        }
+        function updateCertCount() {
+            certCounter = document.getElementById('certTable').rows.length - 1;
+            document.getElementById('certCount').innerText = certCounter + ' items';
+        }
+
+        // References: Add editable row (added response fields)
+        let refCounter = 0;
+        function addRefRow() {
+            const table = document.getElementById('refTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+
+            const typeCell = row.insertCell(0);
+            typeCell.innerHTML = `
+                <select>
+                    <option value="Business Reference">Business Reference</option>
+                    <option value="Personal Reference">Personal Reference</option>
+                </select>`;
+            const nameCell = row.insertCell(1);
+            nameCell.innerHTML = '<input type="text" placeholder="Reference Name/Contact">';
+            const projectCell = row.insertCell(2);
+            projectCell.innerHTML = '<input type="text" placeholder="Project Referenced">';
+            const contactCell = row.insertCell(3);
+            contactCell.innerHTML = '<input type="text" placeholder="Contact Info">';
+            const testimonialCell = row.insertCell(4);
+            testimonialCell.innerHTML = '<textarea rows="2" placeholder="Testimonial/Feedback"></textarea>';
+            row.insertCell(5).innerHTML = '<button onclick="this.parentNode.parentNode.remove(); updateRefCount();">Remove</button>';
+
+            refCounter++;
+            updateRefCount();
+        }
+        function updateRefCount() {
+            refCounter = document.getElementById('refTable').rows.length - 1;
+            document.getElementById('refCount').innerText = refCounter + ' items';
+        }
+
+        // Responses to Custom Criteria: Add row (removed weight/max/required, added response)
+        let criteriaCounter = 0;
+        function addCriterionRow() {
+            const table = document.getElementById('criteriaTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+            criteriaCounter++;
+
+            row.insertCell(0).innerHTML = criteriaCounter;
+            const nameCell = row.insertCell(1);
+            nameCell.innerHTML = '<input type="text" value="New Criterion">';
+            const descCell = row.insertCell(2);
+            descCell.innerHTML = '<textarea rows="2"></textarea>';
+            const methodCell = row.insertCell(3);
+            methodCell.innerHTML = `
+                <select>
+                    <option>Qualitative Narrative</option>
+                    <option>Scored Rubric (1-5)</option>
+                    <option>Pass/Fail</option>
+                    <option>Cost</option>
+                </select>`;
+            row.insertCell(4).innerHTML = '<input type="file">';
+            const responseCell = row.insertCell(5);
+            responseCell.innerHTML = '<textarea rows="4" placeholder="Your response"></textarea>';
+            row.insertCell(6).innerHTML = '<button onclick="removeCriterionRow(this);">Remove</button>';
+        }
+        function removeCriterionRow(btn) {
+            btn.parentNode.parentNode.remove();
+            criteriaCounter--;
+            const rows = document.getElementById('criteriaTable').getElementsByTagName('tbody')[0].rows;
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].cells[0].innerText = i + 1;
+            }
+        }
+
+        // Cost: Add editable row (removed required and weight)
+        let costCounter = 0;
+        function addCostRow() {
+            const table = document.getElementById('costTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+
+            const itemCell = row.insertCell(0);
+            itemCell.innerHTML = '<input type="text" value="New Item">';
+            const amountCell = row.insertCell(1);
+            amountCell.innerHTML = '<input type="number" min="0" value="0">';
+            const breakdownCell = row.insertCell(2);
+            breakdownCell.innerHTML = '<textarea rows="2"></textarea>';
+            row.insertCell(3).innerHTML = '<button onclick="this.parentNode.parentNode.remove(); updateCostCount();">Remove</button>';
+
+            costCounter++;
+            updateCostCount();
+        }
+        function updateCostCount() {
+            costCounter = document.getElementById('costTable').rows.length - 1;
+            document.getElementById('costCount').innerText = costCounter + ' items';
+        }
+    </script>
+
+</body>
+</html>

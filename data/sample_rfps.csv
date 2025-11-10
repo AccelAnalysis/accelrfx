@@ -1,0 +1,4 @@
+ID,Title,Type,Issued,Close,Description,Tags,Company,CreatedBy,CreatedAt,Lat,Lng
+RFP001,Housing Market Study,RFP,2025-11-01,2025-11-25,Regional housing market analysis.,housing,HRPDC,admin@accelrfx.com,2025-11-01,36.8529,-75.9780
+RFP002,Infrastructure Assessment,RFQ,2025-11-02,2025-11-28,City infrastructure needs assessment.,infrastructure,City of Norfolk,planner@accelrfx.com,2025-11-02,36.8468,-76.2859
+RFP003,IT Managed Services,RFP,2025-11-05,2025-12-01,Managed IT services for multi-site org.,it,Smithfield Schools,it@smithfield.edu,2025-11-05,36.9824,-76.6319

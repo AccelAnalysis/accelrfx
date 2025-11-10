@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFI Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .notification { background-color: lightblue; padding: 10px; margin-bottom: 10px; }
+        .section { border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; }
+        .section h2 { cursor: pointer; } /* For collapsible, but JS not implemented for all */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        input[readonly] { background-color: #f0f0f0; }
+        .add-btn { margin-top: 10px; }
+        .footer-summary { margin-top: 10px; font-weight: bold; }
+        .validation { color: red; display: none; }
+        #globalSummary { margin-top: 20px; padding: 10px; background: #f0f0f0; }
+    </style>
+</head>
+<body>
+
+    <!-- RFx General Info Section -->
+    <div class="section">
+        <h2>RFx General Info</h2>
+        <form id="rfxForm">
+            <label>Business Process Code: <input type="text" id="bpCode" placeholder="Enter code"></label><br><br>
+            <label>RFx Title: <input type="text" id="label" placeholder="Enter descriptive title"></label><br><br>
+            <label>Lot #: <input type="text" id="lot" readonly value="1"></label><br><br>
+            <label>Round: <input type="text" id="round" readonly value="0"></label><br><br>
+            <label>Issued Date/Time (UTC-5): <input type="datetime-local" id="issuedDate" readonly></label><br><br>
+            <label>Close Date/Time (UTC-5): <input type="datetime-local" id="closeDate"></label><br><br>
+            <label>Opportunity Type: 
+                <select id="oppType" onchange="toggleCostSection()">
+                    <option value="Request for Information (RFI)">Request for Information (RFI)</option>
+                    <option value="Request for Proposal (RFP)">Request for Proposal (RFP)</option>
+                    <option value="Other">Other</option>
+                </select>
+            </label><br><br>
+            <label>Set Aside: <input type="text" id="setAside" placeholder="e.g., Small Business"></label><br><br>
+            <label>Amendment Description: <textarea id="amendDesc" rows="4" placeholder="Describe amendments if any"></textarea></label><br><br>
+            <label>Cancellation Description: <textarea id="cancelDesc" rows="4" placeholder="Describe cancellation if any"></textarea></label><br><br>
+            <label>Summary: <textarea id="summary" rows="6" placeholder="Detailed project overview"></textarea></label><br><br>
+            <label>Website: <input type="url" id="website" placeholder="https://example.com"></label><br><br>
+            <label>Process: 
+                <select id="process">
+                    <option value="Paper Responses Only">Paper Responses Only</option>
+                    <option value="Electronic">Electronic</option>
+                </select>
+            </label><br><br>
+        </form>
+    </div>
+
+    <!-- RFx Documents Section -->
+    <div class="section">
+        <h2>RFx Documents</h2>
+        <table id="docsTable">
+            <thead>
+                <tr>
+                    <th>Documentation</th>
+                    <th>Type</th>
+                    <th>Att.</th>
+                    <th>Contact</th>
+                    <th>Last Modification (UTC-5)</th>
+                    <th>Creation Date (UTC-5)</th>
+                    <th>Validity End Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <input type="text" id="docName" placeholder="Document Title">
+        <input type="file" id="docFile">
+        <button class="add-btn" onclick="addDocRow()">Add Document</button>
+        <p id="docCount">0 Record(s)</p>
+    </div>
+
+    <!-- Skills Section -->
+    <div class="section">
+        <h2>Skills</h2>
+        <input type="text" id="skillName" placeholder="Skill">
+        <select id="skillLevel">
+            <option value="">-- Level --</option>
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Expert">Expert</option>
+        </select>
+        <button class="add-btn" onclick="addSkillRow()">Add</button>
+        <table id="skillsTable">
+            <thead>
+                <tr><th>Label</th><th>Level</th><th>Required</th><th>Criteria Weight (%)</th><th>Actions</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="skillCount">0 skills</p>
+    </div>
+
+    <!-- Experience/Past Performance Section -->
+    <div class="section">
+        <h2>Experience/Past Performance</h2>
+        <input type="text" id="expName" placeholder="Project/Case Study Name">
+        <textarea id="expDesc" placeholder="Description" rows="2"></textarea>
+        <input type="number" id="expYears" placeholder="Years of Experience" min="0">
+        <button class="add-btn" onclick="addExperienceRow()">Add</button>
+        <table id="experienceTable">
+            <thead>
+                <tr><th>Name</th><th>Description</th><th>Years</th><th>Required</th><th>Criteria Weight (%)</th><th>Actions</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="expCount">0 items</p>
+    </div>
+
+    <!-- Certifications/Credentials Section -->
+    <div class="section">
+        <h2>Certifications/Credentials</h2>
+        <input type="text" id="certName" placeholder="Certification Name">
+        <input type="text" id="certBody" placeholder="Issuing Body">
+        <input type="date" id="certExpDate" placeholder="Expiration Date">
+        <input type="file" id="certFile" placeholder="Verification Attachment">
+        <button class="add-btn" onclick="addCertRow()">Add</button>
+        <table id="certTable">
+            <thead>
+                <tr><th>Name</th><th>Body</th><th>Exp. Date</th><th>Doc</th><th>Required</th><th>Criteria Weight (%)</th><th>Actions</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="certCount">0 items</p>
+    </div>
+
+    <!-- References Section -->
+    <div class="section">
+        <h2>References</h2>
+        <input type="text" id="refName" placeholder="Reference Name/Contact">
+        <input type="text" id="refProject" placeholder="Project Referenced">
+        <input type="text" id="refContact" placeholder="Contact Info">
+        <textarea id="refTestimonial" placeholder="Testimonial/Feedback" rows="2"></textarea>
+        <button class="add-btn" onclick="addRefRow()">Add</button>
+        <table id="refTable">
+            <thead>
+                <tr><th>Name</th><th>Project</th><th>Contact Info</th><th>Testimonial</th><th>Required</th><th>Criteria Weight (%)</th><th>Actions</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="refCount">0 items</p>
+    </div>
+
+    <!-- RFx Criteria Section -->
+    <div class="section">
+        <h2>RFx Criteria</h2>
+        <div>
+            <button class="add-btn" onclick="addCriterionRow()">Add Criterion</button>
+            <select><option>Import from Template</option></select>
+        </div>
+        <table id="criteriaTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Criterion</th>
+                    <th>Description</th>
+                    <th>Weight (%)</th>
+                    <th>Max Points</th>
+                    <th>Method</th>
+                    <th>Required</th>
+                    <th>Doc</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Cost/Financial Proposal Section (toggleable) -->
+    <div class="section" id="costSection" style="display: none;">
+        <h2>Cost/Financial Proposal</h2>
+        <input type="text" id="costItem" placeholder="Cost Item">
+        <input type="number" id="costAmount" placeholder="Amount" min="0">
+        <textarea id="costBreakdown" placeholder="Breakdown" rows="2"></textarea>
+        <button class="add-btn" onclick="addCostRow()">Add</button>
+        <table id="costTable">
+            <thead>
+                <tr><th>Item</th><th>Amount</th><th>Breakdown</th><th>Required</th><th>Criteria Weight (%)</th><th>Actions</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="costCount">0 items</p>
+    </div>
+
+    <!-- Access to Questionnaire -->
+    <div class="section">
+        <h2>Access to Questionnaire</h2>
+        <!-- Placeholder for questionnaire links -->
+        <p>(Questionnaire content would go here)</p>
+    </div>
+
+    <!-- Access to Services -->
+    <div class="section">
+        <h2>Access to Services</h2>
+        <!-- Placeholder for services -->
+        <p>(Services links would go here)</p>
+    </div>
+
+    <!-- Global Summary -->
+    <div id="globalSummary" class="footer-summary">
+        Global Total Weight: <span id="globalWeight">0%</span>
+        <div class="validation" id="globalWeightValidation">⚠ Total weight must sum to 100%</div>
+    </div>
+
+    <script>
+        // Automated fields setup on load
+        window.onload = function() {
+            // Issued Date/Time: Automated current date
+            const now = new Date();
+            const utc5Offset = now.getTimezoneOffset() + 300; // UTC-5 in minutes
+            const utc5Date = new Date(now.getTime() - utc5Offset * 60000);
+            document.getElementById('issuedDate').value = utc5Date.toISOString().slice(0, 16);
+
+            // Lot and Round: Automated defaults
+            // Already set in HTML
+
+            toggleCostSection(); // Initial toggle
+        };
+
+        // Toggle Cost Section based on Opportunity Type
+        function toggleCostSection() {
+            const oppType = document.getElementById('oppType').value;
+            const costSection = document.getElementById('costSection');
+            costSection.style.display = (oppType === 'Request for Proposal (RFP)') ? 'block' : 'none';
+            updateTotals();
+        }
+
+        // RFx Documents: Add row
+        let docCounter = 0;
+        function addDocRow() {
+            const table = document.getElementById('docsTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+            const now = new Date().toLocaleString();
+
+            row.insertCell(0).innerHTML = document.getElementById('docName').value || 'Untitled';
+            row.insertCell(1).innerHTML = 'RFx Document (Approved)'; // Auto
+            row.insertCell(2).innerHTML = document.getElementById('docFile').files.length ? '📎' : ''; // Auto
+            row.insertCell(3).innerHTML = 'Current User'; // Auto
+            row.insertCell(4).innerHTML = now; // Auto
+            row.insertCell(5).innerHTML = now; // Auto
+            row.insertCell(6).innerHTML = '<input type="date" placeholder="Validity End">'; // Manual
+            row.insertCell(7).innerHTML = '<button onclick="this.parentNode.parentNode.remove(); updateDocCount();">Remove</button>';
+
+            docCounter++;
+            updateDocCount();
+            document.getElementById('docName').value = '';
+            document.getElementById('docFile').value = '';
+        }
+
+        function updateDocCount() {
+            docCounter = document.getElementById('docsTable').rows.length - 1;
+            document.getElementById('docCount').innerText = docCounter + ' Record(s)';
+        }
+
+        // Skills: Add row
+        let skillCounter = 0;
+        function addSkillRow() {
+            const table = document.getElementById('skillsTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+
+            row.insertCell(0).innerHTML = document.getElementById('skillName').value;
+            row.insertCell(1).innerHTML = document.getElementById('skillLevel').value;
+            row.insertCell(2).innerHTML = '<input type="checkbox" checked onchange="updateTotals()">';
+            const weightCell = row.insertCell(3);
+            weightCell.innerHTML = '<input type="number" min="0" max="100" step="0.5" value="0" oninput="updateTotals()">';
+            row.insertCell(4).innerHTML = '<button onclick="this.parentNode.parentNode.remove(); updateSkillCount(); updateTotals();">Remove</button>';
+
+            skillCounter++;
+            updateSkillCount();
+            updateTotals();
+            document.getElementById('skillName').value = '';
+            document.getElementById('skillLevel').value = '';
+        }
+
+        function updateSkillCount() {
+            skillCounter = document.getElementById('skillsTable').rows.length - 1;
+            document.getElementById('skillCount').innerText = skillCounter + ' skills';
+        }
+
+        // Experience: Add row
+        let expCounter = 0;
+        function addExperienceRow() {
+            const table = document.getElementById('experienceTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+
+            row.insertCell(0).innerHTML = document.getElementById('expName').value;
+            row.insertCell(1).innerHTML = '<textarea rows="2">' + document.getElementById('expDesc').value + '</textarea>';
+            row.insertCell(2).innerHTML = document.getElementById('expYears').value;
+            row.insertCell(3).innerHTML = '<input type="checkbox" checked onchange="updateTotals()">';
+            const weightCell = row.insertCell(4);
+            weightCell.innerHTML = '<input type="number" min="0" max="100" step="0.5" value="0" oninput="updateTotals()">';
+            row.insertCell(5).innerHTML = '<button onclick="this.parentNode.parentNode.remove(); updateExpCount(); updateTotals();">Remove</button>';
+
+            expCounter++;
+            updateExpCount();
+            updateTotals();
+            document.getElementById('expName').value = '';
+            document.getElementById('expDesc').value = '';
+            document.getElementById('expYears').value = '';
+        }
+
+        function updateExpCount() {
+            expCounter = document.getElementById('experienceTable').rows.length - 1;
+            document.getElementById('expCount').innerText = expCounter + ' items';
+        }
+
+        // Certifications: Add row
+        let certCounter = 0;
+        function addCertRow() {
+            const table = document.getElementById('certTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+
+            row.insertCell(0).innerHTML = document.getElementById('certName').value;
+            row.insertCell(1).innerHTML = document.getElementById('certBody').value;
+            row.insertCell(2).innerHTML = document.getElementById('certExpDate').value;
+            row.insertCell(3).innerHTML = document.getElementById('certFile').files.length ? '📎' : '';
+            row.insertCell(4).innerHTML = '<input type="checkbox" checked onchange="updateTotals()">';
+            const weightCell = row.insertCell(5);
+            weightCell.innerHTML = '<input type="number" min="0" max="100" step="0.5" value="0" oninput="updateTotals()">';
+            row.insertCell(6).innerHTML = '<button onclick="this.parentNode.parentNode.remove(); updateCertCount(); updateTotals();">Remove</button>';
+
+            certCounter++;
+            updateCertCount();
+            updateTotals();
+            document.getElementById('certName').value = '';
+            document.getElementById('certBody').value = '';
+            document.getElementById('certExpDate').value = '';
+            document.getElementById('certFile').value = '';
+        }
+
+        function updateCertCount() {
+            certCounter = document.getElementById('certTable').rows.length - 1;
+            document.getElementById('certCount').innerText = certCounter + ' items';
+        }
+
+        // References: Add row
+        let refCounter = 0;
+        function addRefRow() {
+            const table = document.getElementById('refTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+
+            row.insertCell(0).innerHTML = document.getElementById('refName').value;
+            row.insertCell(1).innerHTML = document.getElementById('refProject').value;
+            row.insertCell(2).innerHTML = document.getElementById('refContact').value;
+            row.insertCell(3).innerHTML = '<textarea rows="2">' + document.getElementById('refTestimonial').value + '</textarea>';
+            row.insertCell(4).innerHTML = '<input type="checkbox" checked onchange="updateTotals()">';
+            const weightCell = row.insertCell(5);
+            weightCell.innerHTML = '<input type="number" min="0" max="100" step="0.5" value="0" oninput="updateTotals()">';
+            row.insertCell(6).innerHTML = '<button onclick="this.parentNode.parentNode.remove(); updateRefCount(); updateTotals();">Remove</button>';
+
+            refCounter++;
+            updateRefCount();
+            updateTotals();
+            document.getElementById('refName').value = '';
+            document.getElementById('refProject').value = '';
+            document.getElementById('refContact').value = '';
+            document.getElementById('refTestimonial').value = '';
+        }
+
+        function updateRefCount() {
+            refCounter = document.getElementById('refTable').rows.length - 1;
+            document.getElementById('refCount').innerText = refCounter + ' items';
+        }
+
+        // RFx Criteria: Add row (Updated Mand. to Required for consistency)
+        let criteriaCounter = 0;
+        function addCriterionRow() {
+            const table = document.getElementById('criteriaTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+            criteriaCounter++;
+
+            row.insertCell(0).innerHTML = criteriaCounter;
+            const nameCell = row.insertCell(1);
+            nameCell.innerHTML = '<input type="text" value="New Criterion" oninput="updateTotals()">';
+            const descCell = row.insertCell(2);
+            descCell.innerHTML = '<textarea rows="2" oninput="updateTotals()"></textarea>';
+            const weightCell = row.insertCell(3);
+            weightCell.innerHTML = '<input type="number" min="0" max="100" step="0.5" value="0" oninput="updateTotals()">';
+            row.insertCell(4).innerHTML = '0'; // Max Points, updated in updateTotals
+            const methodCell = row.insertCell(5);
+            methodCell.innerHTML = `
+                <select oninput="updateTotals()">
+                    <option>Qualitative Narrative</option>
+                    <option>Scored Rubric (1-5)</option>
+                    <option>Pass/Fail</option>
+                    <option>Cost</option>
+                </select>`;
+            row.insertCell(6).innerHTML = '<input type="checkbox" checked onchange="updateTotals()">'; // Required
+            row.insertCell(7).innerHTML = '<input type="file">';
+            row.insertCell(8).innerHTML = '<button onclick="removeCriterionRow(this); updateTotals();">Remove</button>';
+
+            updateTotals();
+        }
+
+        function removeCriterionRow(btn) {
+            btn.parentNode.parentNode.remove();
+            criteriaCounter--;
+            const rows = document.getElementById('criteriaTable').getElementsByTagName('tbody')[0].rows;
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].cells[0].innerText = i + 1;
+            }
+            updateTotals();
+        }
+
+        // Cost: Add row
+        let costCounter = 0;
+        function addCostRow() {
+            const table = document.getElementById('costTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+
+            row.insertCell(0).innerHTML = document.getElementById('costItem').value;
+            row.insertCell(1).innerHTML = document.getElementById('costAmount').value;
+            row.insertCell(2).innerHTML = '<textarea rows="2">' + document.getElementById('costBreakdown').value + '</textarea>';
+            row.insertCell(3).innerHTML = '<input type="checkbox" checked onchange="updateTotals()">';
+            const weightCell = row.insertCell(4);
+            weightCell.innerHTML = '<input type="number" min="0" max="100" step="0.5" value="0" oninput="updateTotals()">';
+            row.insertCell(5).innerHTML = '<button onclick="this.parentNode.parentNode.remove(); updateCostCount(); updateTotals();">Remove</button>';
+
+            costCounter++;
+            updateCostCount();
+            updateTotals();
+            document.getElementById('costItem').value = '';
+            document.getElementById('costAmount').value = '';
+            document.getElementById('costBreakdown').value = '';
+        }
+
+        function updateCostCount() {
+            costCounter = document.getElementById('costTable').rows.length - 1;
+            document.getElementById('costCount').innerText = costCounter + ' items';
+        }
+
+        // Global Update Totals (sums weights from all sections, skips hidden cost if not visible)
+        function updateTotals() {
+            const tables = ['skillsTable', 'experienceTable', 'certTable', 'refTable', 'criteriaTable', 'costTable'];
+            let globalWeight = 0;
+
+            tables.forEach(tableId => {
+                const table = document.getElementById(tableId);
+                if (table && (tableId !== 'costTable' || document.getElementById('costSection').style.display !== 'none')) {
+                    const rows = table.getElementsByTagName('tbody')[0].rows;
+                    for (let row of rows) {
+                        let weightCellIndex;
+                        if (tableId === 'criteriaTable') {
+                            weightCellIndex = 3;
+                        } else {
+                            weightCellIndex = table.rows[0].cells.length - 3; // Weight is before Actions and after Required
+                        }
+                        const weightInput = row.cells[weightCellIndex].querySelector('input[type="number"]');
+                        if (weightInput) {
+                            globalWeight += parseFloat(weightInput.value) || 0;
+                        }
+
+                        // For criteriaTable, update Max Points
+                        if (tableId === 'criteriaTable') {
+                            const weight = parseFloat(weightInput.value) || 0;
+                            const maxPoints = weight * 10;
+                            row.cells[4].innerText = maxPoints;
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('globalWeight').innerText = globalWeight.toFixed(1) + '%';
+
+            const validation = document.getElementById('globalWeightValidation');
+            if (globalWeight !== 100) {
+                validation.style.display = 'block';
+            } else {
+                validation.style.display = 'none';
+            }
+        }
+    </script>
+
+</body>
+</html>
