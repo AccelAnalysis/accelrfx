@@ -375,12 +375,12 @@
             <span class="validation" id="globalWeightValidation">Total weight must sum to 100%</span>
         </div>
         <div class="banner-actions">
-            <button class="btn btn-outline" onclick="alert('Saved')">Save</button>
-            <button class="btn btn-outline" onclick="alert('Saved & Closed')">Save & Close</button>
-            <button class="btn btn-outline" onclick="alert('Closed')">Close without Saving</button>
-            <button class="btn btn-primary" onclick="alert('Published')">Publish</button>
-            <button class="btn btn-danger" id="cancelBtn" onclick="showCancelModal()">Cancel RFx</button>
-        </div>
+  <button class="btn btn-outline" onclick="alert('Saved')">Save</button>
+  <button class="btn btn-outline" onclick="alert('Saved & Closed')">Save & Close</button>
+  <button class="btn btn-outline" onclick="alert('Closed')">Close without Saving</button>
+  <button class="btn btn-primary" onclick="alert('Published')">Publish</button>
+  <button class="btn btn-danger" id="cancelBtn" onclick="showCancelModal()">Cancel RFx</button>
+</div>
     </div>
 
     <!-- Main Container -->
@@ -912,6 +912,192 @@ function globalWeightPct() {
   ];
   return parts.reduce((a,b)=>a+b,0);
 }
+</script>
+    <script type="module">
+/* --- CONFIG (ESM or global) --- */
+import cfg from './config.js';
+const CONFIG = (window.CONFIG || cfg);
+
+/* --- small helper --- */
+async function api(route, method='GET', body=null, qs={}) {
+  const u = new URL(CONFIG.WEBAPP_URL);
+  u.searchParams.set('route', route);
+  Object.entries(qs).forEach(([k,v]) => u.searchParams.set(k, v));
+  const res = await fetch(u.toString(), {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : null,
+    mode: 'cors'
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+const v   = id => document.getElementById(id)?.value?.trim() ?? '';
+const num = s  => { const n = parseFloat(s); return Number.isFinite(n) ? n : 0; };
+
+/* --- table serializers (match your DOM) --- */
+function rows(tableId, map) {
+  const tb = document.querySelector(`#${tableId} tbody`);
+  return tb ? [...tb.querySelectorAll('tr')].map(map) : [];
+}
+function getCriteria() {
+  return rows('criteriaTable', r => ({
+    number: r.cells[0]?.textContent.trim() || '',
+    criterion: r.cells[1]?.querySelector('input')?.value || '',
+    description: r.cells[2]?.querySelector('textarea')?.value || '',
+    method: r.cells[5]?.querySelector('select, input, textarea, [value]')?.value || r.cells[5]?.textContent.trim() || '',
+    weightPct: num(r.cells[3]?.querySelector('input')?.value || '0'),
+    maxPoints: num(r.cells[4]?.textContent || '0'),
+    required: !!r.cells[6]?.querySelector('input[type=checkbox]')?.checked
+  }));
+}
+function getSkills() {
+  return rows('skillsTable', r => ({
+    label: r.cells[0]?.querySelector('input')?.value || '',
+    level: r.cells[1]?.querySelector('select')?.value || '',
+    required: !!r.cells[2]?.querySelector('input[type=checkbox]')?.checked,
+    weightPct: num(r.cells[3]?.querySelector('input')?.value || '0')
+  }));
+}
+function getExperience() {
+  return rows('experienceTable', r => ({
+    name: r.cells[0]?.querySelector('input')?.value || '',
+    description: r.cells[1]?.querySelector('textarea')?.value || '',
+    years: r.cells[2]?.querySelector('input')?.value || '',
+    required: !!r.cells[3]?.querySelector('input[type=checkbox]')?.checked,
+    weightPct: num(r.cells[4]?.querySelector('input')?.value || '0')
+  }));
+}
+function getCerts() {
+  return rows('certTable', r => ({
+    name: r.cells[0]?.querySelector('input')?.value || '',
+    body: r.cells[1]?.querySelector('input')?.value || '',
+    minExpDate: r.cells[2]?.querySelector('input[type=date]')?.value || '',
+    required: !!r.cells[4]?.querySelector('input[type=checkbox]')?.checked,
+    weightPct: num(r.cells[5]?.querySelector('input')?.value || '0')
+  }));
+}
+function getRefs() {
+  return rows('refTable', r => ({
+    type: r.cells[0]?.querySelector('select')?.value || '',
+    required: !!r.cells[1]?.querySelector('input[type=checkbox]')?.checked,
+    weightPct: num(r.cells[2]?.querySelector('input')?.value || '0')
+  }));
+}
+function getCosts() {
+  const sec = document.getElementById('costSection');
+  if (!sec || sec.style.display === 'none') return [];
+  return rows('costTable', r => ({
+    item: r.cells[0]?.querySelector('input')?.value || '',
+    amount: num(r.cells[1]?.querySelector('input')?.value || '0'),
+    breakdown: r.cells[2]?.querySelector('textarea')?.value || '',
+    required: !!r.cells[3]?.querySelector('input[type=checkbox]')?.checked,
+    weightPct: num(r.cells[4]?.querySelector('input')?.value || '0')
+  }));
+}
+function totalWeight() {
+  return [
+    ...getCriteria().map(x=>x.weightPct||0),
+    ...getSkills().map(x=>x.weightPct||0),
+    ...getExperience().map(x=>x.weightPct||0),
+    ...getCerts().map(x=>x.weightPct||0),
+    ...getRefs().map(x=>x.weightPct||0),
+    ...getCosts().map(x=>x.weightPct||0),
+  ].reduce((a,b)=>a+b,0);
+}
+
+/* --- payload builder --- */
+function buildRfxPayload(status='Draft') {
+  const payload = {
+    bpCode: v('bpCode'),
+    label:  v('label'),
+    lot:    v('lot'),
+    round:  v('round'),
+    issuedDate: v('issuedDate'),
+    closeDate:  v('closeDate'),
+    oppType:    document.getElementById('oppType')?.value || 'Request for Information (RFI)',
+    setAside:   v('setAside'),
+    summary:    v('summary'),
+    website:    v('website'),
+    process:    v('process'),
+    sections: {
+      criteria: getCriteria(),
+      skills:   getSkills(),
+      experience: getExperience(),
+      certifications: getCerts(),
+      references: getRefs(),
+      costs: getCosts()
+    },
+    meta: {
+      actionCost: (CONFIG.CREDITS?.ACTION_COSTS?.CREATE_RFx ?? 10)
+    },
+    globalWeightPct: totalWeight(),
+    status,
+    createdAt: new Date().toISOString()
+  };
+
+  // Optional hook: if you store property payload in a hidden field
+  const prop = document.getElementById('propertyPayload');
+  if (prop && prop.value) {
+    try { payload.properties = JSON.parse(prop.value); } catch { payload.propertiesRaw = prop.value; }
+  }
+  if (!payload.bpCode) {
+    payload.bpCode = 'BPC-' + Math.random().toString(36).slice(2,8).toUpperCase();
+    const el = document.getElementById('bpCode'); if (el) el.value = payload.bpCode;
+  }
+  return payload;
+}
+
+/* --- return url helper --- */
+function backToApp(extraQS='') {
+  const qsReturn = new URLSearchParams(location.search).get('return');
+  const fixed    = CONFIG.RETURN_URL;
+  const ref      = document.referrer && !document.referrer.includes('about:') ? document.referrer : '';
+  const base = qsReturn || fixed || ref || '/';
+  const sep = base.includes('?') ? '&' : '?';
+  location.href = extraQS ? (base + sep + extraQS) : base;
+}
+
+/* --- bind events --- */
+document.getElementById('btnPublish')?.addEventListener('click', async () => {
+  const payload = buildRfxPayload('Published');
+  // Weight must equal 100% for RFPs
+  if (payload.oppType?.includes('Proposal') && Math.abs(payload.globalWeightPct - 100) > 0.1) {
+    alert(`Total criteria weight must be 100% (now ${payload.globalWeightPct.toFixed(1)}%).`);
+    return;
+  }
+  await api('createRfx', 'POST', payload);
+  backToApp(`bp=${encodeURIComponent(payload.bpCode)}&state=published`);
+});
+
+document.getElementById('btnDraftSave')?.addEventListener('click', async () => {
+  const payload = buildRfxPayload('Draft');
+  await api('saveDraft', 'POST', payload);
+  alert('Draft saved.');
+});
+
+document.getElementById('btnDraftClose')?.addEventListener('click', async () => {
+  const payload = buildRfxPayload('Draft');
+  await api('saveDraft', 'POST', payload);
+  backToApp(`bp=${encodeURIComponent(payload.bpCode)}&state=saved`);
+});
+
+document.getElementById('btnCloseNoSave')?.addEventListener('click', () => backToApp());
+
+document.getElementById('btnCancelRfx')?.addEventListener('click', () => {
+  // You already have showCancelModal()/hideCancelModal()/submitCancel()
+  showCancelModal();
+});
+
+// override your existing submitCancel to actually persist + return
+window.submitCancel = async function submitCancel() {
+  const reason = document.getElementById('cancelReason')?.value?.trim();
+  if (!reason) return alert('Please provide a reason.');
+  const payload = buildRfxPayload('Canceled');
+  payload.cancelReason = reason;
+  await api('cancelRfx', 'POST', payload);
+  backToApp(`bp=${encodeURIComponent(payload.bpCode)}&state=canceled`);
+};
 </script>
 </body>
 </html>
